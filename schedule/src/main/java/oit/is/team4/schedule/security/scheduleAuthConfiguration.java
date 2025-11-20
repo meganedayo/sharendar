@@ -48,32 +48,22 @@ public class scheduleAuthConfiguration {
     // ユーザ名，パスワード，ロールを指定してbuildする
     // このときパスワードはBCryptでハッシュ化されているため，{bcrypt}とつける
     // ハッシュ化せずに平文でパスワードを指定する場合は{noop}をつける
-    // user1/p@ss,user2/p@ss,admin/p@ss
 
     UserDetails user1 = User.withUsername("user1")
         .password("{bcrypt}$2y$10$ngxCDmuVK1TaGchiYQfJ1OAKkd64IH6skGsNw1sLabrTICOHPxC0e").roles("USER").build();
-    UserDetails user2 = User.withUsername("user2")
-        .password("{bcrypt}$2y$10$ngxCDmuVK1TaGchiYQfJ1OAKkd64IH6skGsNw1sLabrTICOHPxC0e").roles("USER").build();
+    UserDetails megane = User.withUsername("めがね")
+        .password("{bcrypt}$2y$05$OowOzVe.CsNR.L.WPv6f6unABMUnQ48YqJEJJvF0x388Ic9udE9jO").roles("USER").build();
+    UserDetails yani = User.withUsername("やに")
+        .password("{bcrypt}$2y$05$SO1SWJAZKy5SBEDvx6sadOFE/RbEgdf9EHvGfZStJbSCnPI4TJEyq").roles("USER").build();
+    UserDetails macho = User.withUsername("まっちょ")
+        .password("{bcrypt}$2y$05$1brl0ftN2Xq1WseBi0oB6eCYqkFUQl.fJR7U62XR83dN4iwuwQOsK").roles("USER").build();
+    UserDetails boshi = User.withUsername("ぼうし")
+        .password("{bcrypt}$2y$05$VvJBwPnWKxMXgy83HPPPLOCsvB.0Ljkr.OUngmxxx6f4h/svEzuAy").roles("USER").build();
     UserDetails admin = User.withUsername("admin")
         .password("{bcrypt}$2y$10$ngxCDmuVK1TaGchiYQfJ1OAKkd64IH6skGsNw1sLabrTICOHPxC0e").roles("ADMIN").build();
-    // customer1 p@ss
-    UserDetails customer1 = User.withUsername("customer1")
-        .password("{bcrypt}$2y$10$ngxCDmuVK1TaGchiYQfJ1OAKkd64IH6skGsNw1sLabrTICOHPxC0e")
-        .roles("CUSTOMER")
-        .build();
-    // customer2 p@ss
-    UserDetails customer2 = User.withUsername("customer2")
-        .password("{bcrypt}$2y$10$ngxCDmuVK1TaGchiYQfJ1OAKkd64IH6skGsNw1sLabrTICOHPxC0e")
-        .roles("CUSTOMER")
-        .build();
-    // seller p@ss
-    UserDetails seller = User.withUsername("seller")
-        .password("{bcrypt}$2y$10$ngxCDmuVK1TaGchiYQfJ1OAKkd64IH6skGsNw1sLabrTICOHPxC0e")
-        .roles("SELLER")
-        .build();
 
     // 生成したユーザをImMemoryUserDetailsManagerに渡す（いくつでも良い）
-    return new InMemoryUserDetailsManager(user1, user2, admin, customer1, customer2, seller);
+    return new InMemoryUserDetailsManager(user1, megane, yani, macho, boshi, admin);
   }
 
 }
