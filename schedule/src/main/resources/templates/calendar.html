@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>イベントカレンダー</title>
+</head>
+
+<body>
+
+  <div class="calendar-container">
+    <h2>カレンダー</h2>
+
+    <div style="margin-bottom: 15px;">
+      <a class="nav-link" th:href="@{/calendar(year=${prevYear}, month=${prevMonth})}"> &lt; 前月 </a>
+
+      <span class="current-month">[[${targetYear}]]年 [[${targetMonth}]]月</span>
+
+      <a class="nav-link" th:href="@{/calendar(year=${nextYear}, month=${nextMonth})}"> 次月 &gt; </a>
+    </div>
+
+    <p><a href="/">トップへ戻る</a></p>
+  </div>
+
+</body>
+
+</html>
