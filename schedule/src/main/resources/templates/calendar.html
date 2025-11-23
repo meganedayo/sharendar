@@ -4,6 +4,75 @@
 <head>
   <meta charset="UTF-8">
   <title>イベントカレンダー</title>
+  <!-- <style>
+    /* 簡単なCSSで見栄えを整える */
+    body {
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    .calendar-container {
+      display: inline-block;
+      margin-top: 20px;
+    }
+
+    /* カレンダーのテーブル設定 */
+    table {
+      border-collapse: collapse;
+      width: 400px;
+    }
+
+    th,
+    td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      width: 14%;
+      height: 60px;
+      vertical-align: top;
+    }
+
+    /* 曜日ごとの色 */
+    th.sun {
+      color: red;
+      background-color: #ffeeee;
+    }
+
+    th.sat {
+      color: blue;
+      background-color: #eeeeff;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    /* 日付セル */
+    td {
+      text-align: left;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    /* ナビゲーションボタン */
+    .nav-link {
+      text-decoration: none;
+      font-size: 18px;
+      padding: 5px 15px;
+      background-color: #007bff;
+      color: white;
+      border-radius: 5px;
+    }
+
+    .nav-link:hover {
+      background-color: #0056b3;
+    }
+
+    .current-month {
+      font-size: 24px;
+      margin: 0 20px;
+      font-weight: bold;
+    }
+  </style> -->
 </head>
 
 <body>
@@ -18,6 +87,31 @@
 
       <a class="nav-link" th:href="@{/calendar(year=${nextYear}, month=${nextMonth})}"> 次月 &gt; </a>
     </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th class="sun">日</th>
+          <th>月</th>
+          <th>火</th>
+          <th>水</th>
+          <th>木</th>
+          <th>金</th>
+          <th class="sat">土</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="week : ${calendarMatrix}">
+          <td th:each="day : ${week}">
+
+            <div th:if="${day != null}">
+              <span th:text="${day}"></span>
+            </div>
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
     <p><a href="/">トップへ戻る</a></p>
   </div>
