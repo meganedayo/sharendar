@@ -116,6 +116,34 @@
     <p><a href="/">トップへ戻る</a></p>
   </div>
 
+  <hr>
+
+  <h2>予定を追加する</h2>
+
+  <form action="/addplan" method="post">
+
+    年：
+    <input type="number" name="year" value="2025"><br>
+
+    月：
+    <input type="number" name="month" min="1" max="12"><br>
+
+    日：
+    <input type="number" name="day" min="1" max="31"><br>
+
+    開始時間：
+    <input type="time" name="time"><br>
+
+    タイトル：
+    <input type="text" name="title"><br>
+
+    <button type="submit">登録</button>
+  </form>
+
+  <div th:if="${param.success}">
+    <p style="color: green; font-weight: bold;">予定を登録しました！</p>
+  </div>
+
 </body>
 
 </html>
