@@ -17,3 +17,11 @@ CREATE TABLE image(
   file_name VARCHAR(255) NOT NULL,
   file_path VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE reaction (
+  id IDENTITY PRIMARY KEY,
+  schedule_id INT NOT NULL,
+  user_name VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (schedule_id) REFERENCES schedule(id)
+);
