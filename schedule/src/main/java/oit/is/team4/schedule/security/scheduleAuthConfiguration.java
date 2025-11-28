@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
@@ -22,6 +24,7 @@ public class scheduleAuthConfiguration {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.formLogin(login -> login
+        .defaultSuccessUrl("/sample1", true)
         .permitAll())
         .logout(logout -> logout
             .logoutUrl("/logout")
@@ -30,7 +33,7 @@ public class scheduleAuthConfiguration {
             .requestMatchers("/sample1/**").authenticated()
             .anyRequest().permitAll()) // 上記以外は全員アクセス可能
         .csrf(csrf -> csrf
-            .ignoringRequestMatchers("/h2-console/*", "/sample2*/**","/addplan","/calendar")) // sample2用にCSRF対策を無効化
+            .ignoringRequestMatchers("/h2-console/*", "/sample2*/**", "/addplan", "/calendar")) // sample2用にCSRF対策を無効化
         .headers(headers -> headers
             .frameOptions(frameOptions -> frameOptions
                 .sameOrigin()));
@@ -66,4 +69,8 @@ public class scheduleAuthConfiguration {
     return new InMemoryUserDetailsManager(user1, megane, yani, macho, boshi, admin);
   }
 
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+  }
 }
