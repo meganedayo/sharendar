@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <title>画像アップロード</title>
+</head>
+
+<body>
+  <h1>画像をアップロードのみ</h1>
+
+  <form method="post" action="/upload" enctype="multipart/form-data" th:action="@{/upload}" th:method="post">
+    <!-- CSRF トークンを埋める -->
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    <div>
+      <label>画像ファイルを選択:</label>
+      <input type="file" name="imageFile" accept="image/*" required>
+    </div>
+    <br>
+    <button type="submit">アップロード</button>
+  </form>
+
+  <div th:if="${param.error}" style="color: red;">
+    失敗しました。
+  </div>
+  <div th:if="${param.success}" style="color: green;">
+    保存しました！
+  </div>
+</body>
+
+</html>
