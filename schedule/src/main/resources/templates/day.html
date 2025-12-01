@@ -1,0 +1,26 @@
+<h2>[[${date}]] の予定</h2>
+
+<table border="1">
+  <tr th:each="hour : ${hours}">
+    <td th:text="${hour} + ':00'"></td>
+    <td>
+      <div th:if="${plansByHour[hour] != null}">
+        <!-- タイトル -->
+        <p th:text="${plansByHour[hour].title}"></p>
+
+        <!-- 時刻 -->
+        <p th:text="${plansByHour[hour].startTime}"></p>
+
+        <!-- 画像 -->
+        <img th:if="${plansByHour[hour].imagePath != null}" th:src="${plansByHour[hour].imagePath}"
+          style="width:150px;">
+      </div>
+
+      <div th:if="${plansByHour[hour] == null}">
+        予定なし
+      </div>
+    </td>
+  </tr>
+</table>
+
+<p><a href="/calendar">カレンダーへ戻る</a></p>

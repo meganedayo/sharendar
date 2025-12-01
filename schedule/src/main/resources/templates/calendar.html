@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <title>イベントカレンダー</title>
+
   <style>
-    /* 簡単なCSSで見栄えを整える */
     body {
       font-family: sans-serif;
       text-align: center;
@@ -16,7 +16,6 @@
       margin-top: 20px;
     }
 
-    /* カレンダーのテーブル設定 */
     table {
       border-collapse: collapse;
       width: 400px;
@@ -31,7 +30,6 @@
       vertical-align: top;
     }
 
-    /* 曜日ごとの色 */
     th.sun {
       color: red;
       background-color: #ffeeee;
@@ -46,14 +44,23 @@
       background-color: #f0f0f0;
     }
 
-    /* 日付セル */
     td {
       text-align: left;
-      font-weight: bold;
       font-size: 14px;
     }
 
-    /* ナビゲーションボタン */
+    /* 日付リンク */
+    .day-link {
+      text-decoration: none;
+      display: block;
+      font-weight: bold;
+      color: black;
+    }
+
+    .day-link:hover {
+      background-color: #f0f8ff;
+    }
+
     .nav-link {
       text-decoration: none;
       font-size: 18px;
@@ -77,15 +84,16 @@
 
 <body>
 
+  <!-- ===== カレンダー表示 ===== -->
   <div class="calendar-container">
     <h2>カレンダー</h2>
 
     <div style="margin-bottom: 15px;">
-      <a class="nav-link" th:href="@{/calendar(year=${prevYear}, month=${prevMonth})}"> &lt; 前月 </a>
+      <a class="nav-link" th:href="@{/calendar(year=${prevYear}, month=${prevMonth})}">&lt; 前月</a>
 
       <span class="current-month">[[${targetYear}]]年 [[${targetMonth}]]月</span>
 
-      <a class="nav-link" th:href="@{/calendar(year=${nextYear}, month=${nextMonth})}"> 次月 &gt; </a>
+      <a class="nav-link" th:href="@{/calendar(year=${nextYear}, month=${nextMonth})}">次月 &gt;</a>
     </div>
 
     <table>
@@ -100,17 +108,22 @@
           <th class="sat">土</th>
         </tr>
       </thead>
+
       <tbody>
         <tr th:each="week : ${calendarMatrix}">
           <td th:each="day : ${week}">
 
             <div th:if="${day != null}">
-              <span th:text="${day}"></span>
+              <!-- ★ 日付クリックで日別ページへ移動 -->
+              <a class="day-link" th:href="@{/schedule/day(date=${targetYear} + '-' + ${targetMonth} + '-' + ${day})}">
+                [[${day}]]
+              </a>
             </div>
 
           </td>
         </tr>
       </tbody>
+
     </table>
 
     <p><a href="/">トップへ戻る</a></p>
@@ -118,6 +131,7 @@
 
   <hr>
 
+  <!-- ===== 予定追加フォーム ===== -->
   <h2>予定を追加する</h2>
 
   <form action="/addplan" method="post">
@@ -140,6 +154,7 @@
     <button type="submit">登録</button>
   </form>
 
+  <!-- 登録成功メッセージ -->
   <div th:if="${param.success}">
     <p style="color: green; font-weight: bold;">予定を登録しました！</p>
   </div>
