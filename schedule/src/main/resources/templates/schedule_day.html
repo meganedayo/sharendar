@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>1日の予定</title>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+
+    .hour-box {
+      border-bottom: 1px solid #ccc;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .time-label {
+      width: 80px;
+      font-weight: bold;
+    }
+
+    .title {
+      background-color: #ffdddd;
+      padding: 5px 10px;
+      border-radius: 5px;
+      margin-left: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2 th:text="${date} + ' の予定'"></h2>
+
+  <div th:each="h : ${hours}" class="hour-box">
+    <div class="time-label" th:text="${h} + '時'"></div>
+
+    <div th:if="${plansByHour[h] != null}">
+      <span th:text="${plansByHour[h].title}" class="title"></span>
+    </div>
+  </div>
+
+  <p><a href="/calendar">カレンダーに戻る</a></p>
+
+</body>
+
+</html>
