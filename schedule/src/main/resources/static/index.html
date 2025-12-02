@@ -4,13 +4,42 @@
 <head>
   <meta charset="utf-8">
   <title>Schedule Samples</title>
+  <style>
+    /* 下に下げたい部分用のクラス */
+    .lower {
+      display: block;
+      margin-top: 1000px;
+      /* 必要に応じて高さを調整 */
+    }
+
+        /* ページ中央に配置するためのクラス */
+    .center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    /* リンクの間隔調整（任意） */
+    .center a {
+      display: block;
+      margin: 6px 0;
+    }
+  </style>
 </head>
 
 <body>
-  <a href="/sample1">sample1へのGETをリクエスト</a><br>
-  <a href="/calendar">カレンダー</a><br>
+<div class="center">
+  <a href="/sample1">ログイン</a><br>
   <a href="/registuser">新規登録</a><br>
-  <a href="/upload">画像アップロード</a><br>
+</div>
+
+
+  <div class="lower">
+    <a href="/calendar">カレンダー</a><br>
+    <a href="/upload">画像アップロード</a><br>
+  </div>
 </body>
 
 </html>
