@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="utf-8" />
+  <title>アップロード画像一覧</title>
+</head>
+
+<body>
+  <h1>アップロード済み画像一覧</h1>
+
+  <p><a th:href="@{/upload}">アップロード画面へ戻る</a></p>
+
+  <div th:if="${#lists.isEmpty(images)}">
+    画像はまだありません。
+  </div>
+
+  <div th:if="${!#lists.isEmpty(images)}">
+    <ul>
+      <li th:each="img : ${images}">
+        <!-- /uploads/{filename} で配信される -->
+        <div>
+          <p th:text="${img}"></p>
+          <img th:src="@{/uploads/{name}(name=${img})}" alt="image" style="max-width:300px; max-height:300px;" />
+        </div>
+      </li>
+    </ul>
+  </div>
+</body>
+
+</html>

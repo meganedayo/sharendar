@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -56,5 +58,13 @@ public class ImageController {
 
     return "redirect:/upload?success"; // アップロード画面に戻る（あるいは一覧画面へ）
   }
-  
+
+  // 追加: DBからファイル名一覧を取得して一覧ページを表示する
+  @GetMapping("/images")
+  public String listImages(Model model) {
+    List<String> names = imageMapper.selectAllImageNames();
+    model.addAttribute("images", names);
+    return "images"; // templates/images.html を表示
+  }
+
 }
