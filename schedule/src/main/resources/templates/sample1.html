@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <html>
 
 <head>
@@ -73,6 +73,15 @@
               </tr>
           </table>
       </div>
+
+  <section>
+    <h3>現在ログイン中のユーザ</h3>
+    <ul>
+      <li th:if="${#lists.isEmpty(activeUsers)}">ログイン中のユーザはいません</li>
+      <!-- activeUsers が文字列リストならこのままで良い。オブジェクトの場合は ${u.username} に変更 -->
+      <li th:each="u : ${activeUsers}" th:text="${u}">ユーザ名</li>
+    </ul>
+  </section>
 
 </body>
 
