@@ -9,7 +9,7 @@ public class WebConfig implements WebMvcConfigurer {
 
   @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
-    // file:uploads/ はアプリ起動ディレクトリの uploads フォルダを指します
+    // アプリ起動ディレクトリの uploads フォルダを /uploads/** で配信
     registry.addResourceHandler("/uploads/**")
         .addResourceLocations("file:uploads/");
   }

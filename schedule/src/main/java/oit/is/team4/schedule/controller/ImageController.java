@@ -4,10 +4,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,18 +29,19 @@ public class ImageController {
 
   @GetMapping("/upload")
   public String showUploadForm() {
-    return "upload"; // upload.html を表示
+    return "upload";
   }
 
   @PostMapping("/upload")
-  public String upload(@RequestParam("imageFile") MultipartFile file) { // answerを削除
+  public String upload(@RequestParam("imageFile") MultipartFile file,
+      // 修正: HTMLのdatetime-local形式に合わせてフォーマットを指定
+      @RequestParam("scheduledTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime scheduledTime) {
 
     if (file.isEmpty()) {
       return "redirect:/upload?error";
     }
 
     try {
-      // --- ステップ A: 物理ファイルの保存 ---
       String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
       Path path = Paths.get(UPLOAD_DIR + fileName);
 
@@ -47,24 +51,31 @@ public class ImageController {
 
       Files.copy(file.getInputStream(), path);
 
-      // --- ステップ B: DBへのINSERT ---
-      // ファイル名だけを保存するメソッドに変更
-      imageMapper.insertImage(fileName);
+      imageMapper.insertImage(fileName, scheduledTime);
 
     } catch (IOException e) {
       e.printStackTrace();
       return "redirect:/upload?error";
     }
 
-    return "redirect:/upload?success"; // アップロード画面に戻る（あるいは一覧画面へ）
+    return "redirect:/upload?success";
   }
 
-  // 追加: DBからファイル名一覧を取得して一覧ページを表示する
   @GetMapping("/images")
   public String listImages(Model model) {
     List<String> names = imageMapper.selectAllImageNames();
     model.addAttribute("images", names);
-    return "images"; // templates/images.html を表示
+    return "images";
   }
 
+  @GetMapping("/schedule/by-date")
+  public String imagesByDate(
+      @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+      Model model) {
+
+    List<String> images = imageMapper.selectImageNamesByDate(date);
+    model.addAttribute("images", images);
+    model.addAttribute("date", date.toString());
+    return "schedule_day";
+  }
 }

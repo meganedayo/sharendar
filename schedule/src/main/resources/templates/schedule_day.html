@@ -4,7 +4,6 @@
 <head>
   <meta charset="UTF-8" />
   <title>1日の予定</title>
-
   <style>
     body {
       font-family: sans-serif;
@@ -29,18 +28,51 @@
       border-radius: 5px;
       margin-left: 20px;
     }
+
+    /* デバッグ表示用のスタイル */
+    .debug-box {
+      background-color: #f0f0f0;
+      border: 2px dashed #888;
+      padding: 10px;
+      margin-bottom: 20px;
+      color: #333;
+    }
   </style>
 </head>
 
 <body>
 
+  <div class="debug-box">
+    <h3>🔍 デバッグ情報</h3>
+    <p>日付: <span th:text="${date}"></span></p>
+    <p>取得できた画像の数: <span th:text="${imagesByHour.size()}"></span> 個 (キーの数)</p>
+    <p>中身: <span th:text="${imagesByHour}"></span></p>
+    <p>※ここが { } 空っぽならDB取得に失敗しています。<br>
+      ※ここに文字があるのに下に画像が出ないならHTMLの問題です。</p>
+  </div>
   <h2 th:text="${date} + ' の予定'"></h2>
 
   <div th:each="h : ${hours}" class="hour-box">
+
     <div class="time-label" th:text="${h} + '時'"></div>
 
     <div th:if="${plansByHour[h] != null}">
       <span th:text="${plansByHour[h].title}" class="title"></span>
+    </div>
+
+    <div th:if="${imagesByHour.containsKey(h)}" style="margin-left:20px;">
+
+      <div th:each="imgName : ${imagesByHour.get(h)}">
+
+        <a th:href="@{/uploads/{name}(name=${imgName})}" target="_blank" th:text="${imgName}">ファイル名</a>
+        <br />
+
+        <a th:href="@{/uploads/{name}(name=${imgName})}" target="_blank">
+          <img th:src="@{/uploads/{name}(name=${imgName})}"
+            style="max-width:150px; max-height:150px; margin-top:5px; border:1px solid #ddd;" />
+        </a>
+        <hr />
+      </div>
     </div>
   </div>
 
