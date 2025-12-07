@@ -24,4 +24,10 @@ public class Sample1Controller {
     return "sample1";
   }
 
+  // 追加: サンプル画像ページ表示
+  @GetMapping("/sampleimage")
+  public String sampleImage() {
+    return "sampleimage";
+  }
+
 }
