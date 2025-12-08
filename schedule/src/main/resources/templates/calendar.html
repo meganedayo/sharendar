@@ -44,12 +44,6 @@
       background-color: #f0f0f0;
     }
 
-    td {
-      text-align: left;
-      font-size: 14px;
-    }
-
-    /* 日付リンク */
     .day-link {
       text-decoration: none;
       display: block;
@@ -79,12 +73,17 @@
       margin: 0 20px;
       font-weight: bold;
     }
+
+    .upload-section {
+      margin-top: 40px;
+      padding: 20px;
+      border-top: 2px solid #ddd;
+    }
   </style>
 </head>
 
 <body>
 
-  <!-- ===== カレンダー表示 ===== -->
   <div class="calendar-container">
     <h2>カレンダー</h2>
 
@@ -112,82 +111,49 @@
       <tbody>
         <tr th:each="week : ${calendarMatrix}">
           <td th:each="day : ${week}">
-
             <div th:if="${day != null}">
-              <!-- ★ 日付クリックで日別ページへ移動 -->
               <a class="day-link" th:href="@{/schedule/day(date=${targetYear} + '-' + ${targetMonth} + '-' + ${day})}">
                 [[${day}]]
               </a>
             </div>
-
           </td>
         </tr>
       </tbody>
-
     </table>
 
     <p><a href="/">トップへ戻る</a></p>
   </div>
 
-  <hr>
 
-  <!-- ===== 予定追加フォーム ===== -->
-  <h2>予定を追加する</h2>
+  <!-- ★★★ 画像アップロードフォーム ★★★ -->
+  <div class="upload-section">
+    <h2>画像をアップロードのみ</h2>
 
-  <form action="/addplan" method="post">
+    <form th:action="@{/upload}" th:method="post" enctype="multipart/form-data">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-    年：
-    <input type="number" name="year" value="2025"><br>
+      <div>
+        <label>画像ファイル:</label>
+        <input type="file" name="imageFile" accept="image/*" required>
+      </div>
 
-    月：
-    <input type="number" name="month" min="1" max="12"><br>
+      <div>
+        <label>指定日時:</label>
+        <input type="datetime-local" name="scheduledTime" required>
+      </div>
 
-    日：
-    <input type="number" name="day" min="1" max="31"><br>
+      <br>
+      <button type="submit">アップロード</button>
+    </form>
 
-    開始時間：
-    <input type="time" name="time"><br>
-
-    タイトル：
-    <input type="text" name="title"><br>
-
-    <button type="submit">登録</button>
-  </form>
-
-  <!-- 登録成功メッセージ -->
-  <div th:if="${param.success}">
-    <p style="color: green; font-weight: bold;">予定を登録しました！</p>
-  </div>
-
-
-</body>
-
-<body>
-  <h2>画像をアップロードのみ</h2>
-
-  <!-- th:action と CSRF トークンを追加 -->
-  <form th:action="@{/upload}" th:method="post" enctype="multipart/form-data">
-    <!-- CSRF トークン -->
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-    <div>
-      <label>画像ファイル:</label>
-      <input type="file" name="imageFile" accept="image/*" required>
+    <div th:if="${param.error}" style="color: red;">
+      失敗しました。
     </div>
-
-    <div>
-      <label>指定日時:</label>
-      <input type="datetime-local" name="scheduledTime" required>
+    <div th:if="${param.success}" style="color: green;">
+      保存しました！
     </div>
-    <br>
-    <button type="submit">アップロード</button>
-  </form>
+  </div>
 
-  <div th:if="${param.error}" style="color: red;">
-    失敗しました。
-  </div>
-  <div th:if="${param.success}" style="color: green;">
-    保存しました！
-  </div>
 </body>
 
 </html>

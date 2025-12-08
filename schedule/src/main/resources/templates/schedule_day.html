@@ -4,32 +4,35 @@
 <head>
   <meta charset="UTF-8" />
   <title>1日の予定</title>
+
   <style>
     body {
       font-family: sans-serif;
       margin: 20px;
     }
 
-    .hour-box {
+    .hour-row {
       border-bottom: 1px solid #ccc;
-      padding: 10px;
-      display: flex;
-      align-items: center;
+      padding: 8px 10px;
+      min-height: 30px;
     }
 
     .time-label {
-      width: 80px;
       font-weight: bold;
+      color: #444;
+      margin-right: 10px;
     }
 
-    .title {
-      background-color: #ffdddd;
-      padding: 5px 10px;
-      border-radius: 5px;
+    .plan-box {
+      display: inline-block;
       margin-left: 20px;
+      background-color: #1e90ff;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 14px;
     }
 
-    /* デバッグ表示用のスタイル */
     .debug-box {
       background-color: #f0f0f0;
       border: 2px dashed #888;
@@ -42,39 +45,54 @@
 
 <body>
 
+  <!-- デバッグ表示 -->
   <div class="debug-box">
-    <h3>🔍 デバッグ情報</h3>
     <p>日付: <span th:text="${date}"></span></p>
-    <p>取得できた画像の数: <span th:text="${imagesByHour.size()}"></span> 個 (キーの数)</p>
-    <p>中身: <span th:text="${imagesByHour}"></span></p>
-    <p>※ここが { } 空っぽならDB取得に失敗しています。<br>
-      ※ここに文字があるのに下に画像が出ないならHTMLの問題です。</p>
+    <p>予定一覧: <span th:text="${plans}"></span></p>
   </div>
+
   <h2 th:text="${date} + ' の予定'"></h2>
 
-  <div th:each="h : ${hours}" class="hour-box">
+  <!-- 時間ごとのブロック -->
+  <div th:each="h : ${hours}" class="hour-row">
 
-    <div class="time-label" th:text="${h} + '時'"></div>
+    <!-- 時刻 -->
+    <span class="time-label" th:text="${h} + '時'"></span>
 
-    <div th:if="${plansByHour[h] != null}">
-      <span th:text="${plansByHour[h].title}" class="title"></span>
-    </div>
+    <!-- ★ 全予定(plans)を回して、startTime.hour==h のものだけ表示 -->
+    <span th:each="p : ${plans}" th:if="${p.startTime.hour == h}" class="plan-box">
+      <span th:text="${p.title}"></span>
+      （<span th:text="${p.startTime}"></span>
+      〜
+      <span th:text="${p.endTime}"></span>）
+    </span>
 
-    <div th:if="${imagesByHour.containsKey(h)}" style="margin-left:20px;">
-
-      <div th:each="imgName : ${imagesByHour.get(h)}">
-
-        <a th:href="@{/uploads/{name}(name=${imgName})}" target="_blank" th:text="${imgName}">ファイル名</a>
-        <br />
-
-        <a th:href="@{/uploads/{name}(name=${imgName})}" target="_blank">
-          <img th:src="@{/uploads/{name}(name=${imgName})}"
-            style="max-width:150px; max-height:150px; margin-top:5px; border:1px solid #ddd;" />
-        </a>
-        <hr />
-      </div>
-    </div>
   </div>
+
+  <!-- 予定追加フォーム -->
+  <h3>予定を追加する</h3>
+
+  <form action="/addplan" method="post">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+    <input type="hidden" name="year" th:value="${#strings.substring(date,0,4)}" />
+    <input type="hidden" name="month" th:value="${#strings.substring(date,5,7)}" />
+    <input type="hidden" name="day" th:value="${#strings.substring(date,8,10)}" />
+
+    <label>開始時間:
+      <input type="time" name="start_time" required />
+    </label><br>
+
+    <label>終了時間:
+      <input type="time" name="end_time" required />
+    </label><br>
+
+    <label>タイトル:
+      <input type="text" name="title" required />
+    </label><br><br>
+
+    <button type="submit">追加</button>
+  </form>
 
   <p><a href="/calendar">カレンダーに戻る</a></p>
 

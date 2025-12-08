@@ -34,27 +34,38 @@ public class ScheduleDayController {
   }
 
   @GetMapping("/schedule/day")
-  public String showDay(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) String dateString,
+  public String showDay(
+      @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) String dateString,
       Model model) {
 
+    // 日付解析
     LocalDate date = parseFlexibleDate(dateString);
 
-    // 予定の取得
+    // LocalDate で検索
     List<Schedule> list = scheduleMapper.selectByDate(date);
-    Map<Integer, Schedule> plansByHour = new HashMap<>();
+    System.out.println("selectByDate(" + date + ") size=" + list.size());
+
+    // 0〜23 時をすべて空リストで初期化
+    Map<Integer, List<Schedule>> plansByHour = new HashMap<>();
+    for (int h = 0; h < 24; h++) {
+      plansByHour.put(h, new ArrayList<>());
+    }
+
+    // 予定を時間ごとに格納
     for (Schedule s : list) {
       int hour = s.getStartTime().getHour();
-      plansByHour.put(hour, s);
+      plansByHour.get(hour).add(s);
     }
 
     model.addAttribute("date", date.toString());
     model.addAttribute("hours", IntStream.range(0, 24).boxed().toList());
     model.addAttribute("plansByHour", plansByHour);
+    model.addAttribute("plans", list); // デバッグ用
 
-    // 画像の取得
+    // 画像（そのまま）
     Map<Integer, List<String>> imagesByHour = new HashMap<>();
+
     try {
-      // その日の00:00:00 から 翌日の00:00:00 までを検索範囲とする
       LocalDateTime start = date.atStartOfDay();
       LocalDateTime end = date.plusDays(1).atStartOfDay();
 
@@ -69,17 +80,20 @@ public class ScheduleDayController {
           imagesByHour.computeIfAbsent(hour, k -> new ArrayList<>()).add(r.getImageName());
         }
       }
+
     } catch (Exception e) {
       e.printStackTrace();
     }
+
     model.addAttribute("imagesByHour", imagesByHour);
 
     return "schedule_day";
   }
 
+  // 日付解析（柔軟対応）
   private LocalDate parseFlexibleDate(String dateString) {
     try {
-      return LocalDate.parse(dateString);
+      return LocalDate.parse(dateString); // 2025-12-01 形式
     } catch (DateTimeParseException e) {
       String[] parts = dateString.split("-");
       if (parts.length != 3) {
