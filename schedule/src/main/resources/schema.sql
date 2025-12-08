@@ -9,6 +9,7 @@ CREATE TABLE schedule (
     id IDENTITY PRIMARY KEY,
     plan_date DATE NOT NULL,
     start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
     title VARCHAR(255) NOT NULL
 );
 

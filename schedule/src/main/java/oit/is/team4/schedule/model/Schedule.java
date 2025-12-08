@@ -7,6 +7,7 @@ public class Schedule {
   private int id;
   private LocalDate planDate;
   private LocalTime startTime;
+  private LocalTime endTime;
   private String title;
 
   public int getId() {
@@ -31,6 +32,14 @@ public class Schedule {
 
   public void setStartTime(LocalTime startTime) {
     this.startTime = startTime;
+  }
+
+  public LocalTime getEndTime() {
+    return endTime;
+  }
+
+  public void setEndTime(LocalTime endTime) {
+    this.endTime = endTime;
   }
 
   public String getTitle() {
