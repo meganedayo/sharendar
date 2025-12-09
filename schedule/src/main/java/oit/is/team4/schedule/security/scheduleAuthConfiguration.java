@@ -24,13 +24,15 @@ public class scheduleAuthConfiguration {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.formLogin(login -> login
-        .defaultSuccessUrl("/calendar", true)
+        // .defaultSuccessUrl("/calendar", true)
         .permitAll())
         .logout(logout -> logout
             .logoutUrl("/logout")
             .logoutSuccessUrl("/")) // ログアウト後に / にリダイレクト
         .authorizeHttpRequests(authz -> authz
-            .requestMatchers("/calendar/**").authenticated()
+            .requestMatchers("/calendar/**",
+                "/sampleimage/**")
+            .authenticated()
             .anyRequest().permitAll()) // 上記以外は全員アクセス可能
         .csrf(csrf -> csrf
             .ignoringRequestMatchers("/h2-console/*", "/sample2*/**", "/addplan", "/calendar")) // sample2用にCSRF対策を無効化
