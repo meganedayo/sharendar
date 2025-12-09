@@ -58,7 +58,9 @@ public class ImageController {
       return "redirect:/upload?error";
     }
 
-    return "redirect:/upload?success";
+    String dateParam = scheduledTime.toLocalDate().toString();
+
+    return "redirect:/schedule/day?date=" + dateParam;
   }
 
   @GetMapping("/images")
