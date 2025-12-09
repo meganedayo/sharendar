@@ -69,9 +69,6 @@
     <form th:action="@{/sampleimage/comment}" method="post">
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
       <div>
-        <label>名前（任意）: <input type="text" name="author" /></label>
-      </div>
-      <div>
         <label>コメント:<br />
           <textarea name="text" rows="4" cols="60" required></textarea>
         </label>

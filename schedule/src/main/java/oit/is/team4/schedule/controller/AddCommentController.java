@@ -1,5 +1,6 @@
 package oit.is.team4.schedule.controller;
 
+import java.security.Principal;
 import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +25,7 @@ public class AddCommentController {
   }
 
   @GetMapping("/sampleimage")
-  public String showSampleImage(Model model) {
+  public String showSampleImage(Model model, Principal principal) {
     List<Comment> comments = commentRepository.findByFilenameOrderByCreatedAtDesc("sample.png");
     model.addAttribute("comments", comments);
     model.addAttribute("filename", "sample.png");
@@ -36,13 +37,14 @@ public class AddCommentController {
     model.addAttribute("heartCount", heartCount);
     model.addAttribute("likeCount", likeCount);
     model.addAttribute("laughCount", laughCount);
+    model.addAttribute("username", principal == null ? "匿名" : principal.getName());
     return "sampleimage";
   }
 
   @PostMapping("/sampleimage/comment")
-  public String postComment(@RequestParam(required = false) String author,
+  public String postComment(Principal principal,
       @RequestParam String text,
-      RedirectAttributes ra) {
+      RedirectAttributes ra) { // { changed code } Principal から投稿者を取得
     if (text == null || text.isBlank()) {
       ra.addFlashAttribute("error", "コメントを入力してください。");
       return "redirect:/sampleimage";
@@ -50,7 +52,8 @@ public class AddCommentController {
 
     Comment c = new Comment();
     c.setFilename("sample.png");
-    c.setAuthor((author == null || author.isBlank()) ? "匿名" : author);
+    String author = (principal == null) ? "匿名" : principal.getName(); // { changed code }
+    c.setAuthor(author);
     c.setText(text);
     commentRepository.save(c);
 
