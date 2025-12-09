@@ -9,14 +9,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import oit.is.team4.schedule.model.Comment;
 import oit.is.team4.schedule.repository.CommentRepository;
+import oit.is.team4.schedule.repository.ImageLikeRepository;
+import oit.is.team4.schedule.model.ImageLike;
 
 @Controller
 public class AddCommentController {
 
   private final CommentRepository commentRepository;
+  private final ImageLikeRepository imageLikeRepository;
 
-  public AddCommentController(CommentRepository commentRepository) {
+  public AddCommentController(CommentRepository commentRepository, ImageLikeRepository imageLikeRepository) {
     this.commentRepository = commentRepository;
+    this.imageLikeRepository = imageLikeRepository;
   }
 
   @GetMapping("/sampleimage")
@@ -24,6 +28,14 @@ public class AddCommentController {
     List<Comment> comments = commentRepository.findByFilenameOrderByCreatedAtDesc("sample.png");
     model.addAttribute("comments", comments);
     model.addAttribute("filename", "sample.png");
+    ImageLike like = imageLikeRepository.findByFilename("sample.png").orElse(null);
+    int heartCount = (like == null) ? 0 : like.getHeartCount();
+    int likeCount = (like == null) ? 0 : like.getLikeCount();
+    int laughCount = (like == null) ? 0 : like.getLaughCount();
+
+    model.addAttribute("heartCount", heartCount);
+    model.addAttribute("likeCount", likeCount);
+    model.addAttribute("laughCount", laughCount);
     return "sampleimage";
   }
 
