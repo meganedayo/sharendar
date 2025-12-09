@@ -15,24 +15,53 @@
     /* ページ中央に配置するためのクラス */
     .center {
       position: absolute;
-      top: 50%;
+      top: 45%;
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
+    }
+
+        /* ロゴ（虹色グラデーション） */
+    .title {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-size: 10rem; /* 好みで調整 */
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5rem;
+      margin: 0 0 0.6rem 0;
+      background: linear-gradient(90deg, #ff004c, #ff7300, #ffef00, #00c853, #00b0ff, #651fff, #ff0080);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: block;
+      animation: rainbow 6s linear infinite;
+    }
+
+        @keyframes rainbow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     /* リンクの間隔調整（任意） */
     .center a {
       display: block;
       margin: 6px 0;
+      font-size: 7rem;
+      /* ← ここで文字を大きくする（必要に応じて調整） */
+      font-weight: 500;
+      /* 太さを調整したい場合に追加（任意） */
     }
   </style>
 </head>
 
 <body>
   <div class="center">
-    <a href="/calendar">ログイン</a><br>
-    <a href="/registuser">新規登録</a><br>
+
+    <span class="title">SHARENDAR</span>
+    <a href="/calendar">Sign In</INp></a><br>
+    <a href="/registuser">Sign Up</a><br>
   </div>
 
 
