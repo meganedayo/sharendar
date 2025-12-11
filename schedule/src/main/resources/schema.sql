@@ -26,3 +26,11 @@ CREATE TABLE reaction (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (schedule_id) REFERENCES schedule(id)
 );
+
+CREATE TABLE reactionlog (
+  id IDENTITY PRIMARY KEY,
+  user_name VARCHAR(100) NOT NULL,
+  file_name VARCHAR(255) NOT NULL,
+  reaction_type VARCHAR(50) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
