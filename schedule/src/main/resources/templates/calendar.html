@@ -44,6 +44,59 @@
       background-color: #f0f0f0;
     }
 
+    td.highlight {
+  position: relative;
+  z-index: 0;
+}
+
+/* 外側にグラデーション枠を描く */
+td.highlight::before {
+  content: "";
+  position: absolute;
+  inset: -4px;              /* 枠の太さ */
+  z-index: -1;
+  border-radius: 4px;
+  background: linear-gradient(135deg,
+      #ff5252,
+      #ffb347,
+      #42a5f5,
+      #ab47bc,
+      #ff5252);
+  background-size: 300% 300%;
+  animation: borderFlow 4s linear infinite;
+}
+
+/* 内側のセル背景を白に戻す (はみ出し防止) */
+td.highlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  z-index: -1;
+}
+
+/* 枠のグラデーションがゆっくり流れるアニメーション */
+@keyframes borderFlow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 枠の光がゆっくり強弱するアニメーション */
+@keyframes highlightPulse {
+  from {
+    box-shadow:
+      inset 0 0 0 2px #ff6347,
+      0 0 4px rgba(255, 99, 71, 0.4);
+  }
+  to {
+    box-shadow:
+      inset 0 0 0 2px #ff6347,
+      0 0 16px rgba(255, 99, 71, 1);
+  }
+}
+
+
     .day-link {
       text-decoration: none;
       display: block;
@@ -110,7 +163,8 @@
 
       <tbody>
         <tr th:each="week : ${calendarMatrix}">
-          <td th:each="day : ${week}">
+          <td th:each="day : ${week}"
+            th:classappend="${day != null and highlightDays != null and highlightDays.contains(day)} ? ' highlight' : ''">
             <div th:if="${day != null}">
               <a class="day-link" th:href="@{/schedule/day(date=${targetYear} + '-' + ${targetMonth} + '-' + ${day})}">
                 [[${day}]]
