@@ -5,14 +5,24 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import oit.is.team4.schedule.service.ReactionHighlightService;
+
 @Controller
 public class CalendarController {
+
+  private final ReactionHighlightService reactionHighlightService;
+
+  public CalendarController(ReactionHighlightService reactionHighlightService) {
+    this.reactionHighlightService = reactionHighlightService;
+  }
 
   @GetMapping("/calendar")
   public String showCalendar(@RequestParam(required = false) Integer year,
@@ -43,6 +53,14 @@ public class CalendarController {
     // 週ごとのリスト（List<List<Integer>>）を作成します。nullは空白マスです。
     List<List<Integer>> calendarMatrix = generateCalendarMatrix(targetDate);
     model.addAttribute("calendarMatrix", calendarMatrix);
+
+    YearMonth yearMonth = YearMonth.from(targetDate);
+    Set<LocalDate> highlightDateSet = reactionHighlightService.getHighlightDatesForMonth(yearMonth);
+    // テンプレートで扱いやすいよう, 日(1〜31)のセットに変換
+    Set<Integer> highlightDays = highlightDateSet.stream()
+        .map(LocalDate::getDayOfMonth)
+        .collect(Collectors.toSet());
+    model.addAttribute("highlightDays", highlightDays);
 
     return "calendar.html";
   }
