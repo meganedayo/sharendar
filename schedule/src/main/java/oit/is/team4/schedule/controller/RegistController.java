@@ -9,17 +9,22 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import oit.is.team4.schedule.model.PendingUser;
+import oit.is.team4.schedule.repository.PendingUserRepository;
 
 @Controller
 public class RegistController {
+
+  private final PendingUserRepository pendingUserRepository;
 
   private final InMemoryUserDetailsManager userDetailsManager;
   private final PasswordEncoder passwordEncoder;
 
   public RegistController(InMemoryUserDetailsManager userDetailsManager,
-      PasswordEncoder passwordEncoder) {
+      PasswordEncoder passwordEncoder, PendingUserRepository pendingUserRepository) {
     this.userDetailsManager = userDetailsManager;
     this.passwordEncoder = passwordEncoder;
+    this.pendingUserRepository = pendingUserRepository;
   }
 
   @GetMapping({ "/registuser", "/auth/registuser" })
@@ -30,21 +35,22 @@ public class RegistController {
   @PostMapping({ "/registuser", "/auth/registuser" })
   public String register(@RequestParam String username,
       @RequestParam String password,
+      @RequestParam(required = false) String email,
       RedirectAttributes ra,
       Model model) {
 
-    if (userDetailsManager.userExists(username)) {
-      model.addAttribute("error", "そのユーザ名は既に使われています。");
+    if (userDetailsManager.userExists(username) || pendingUserRepository.findByUsername(username).isPresent()) {
+      model.addAttribute("error", "そのユーザ名は既に使われているか申請中です。");
       return "registuser";
     }
 
-    var user = User.withUsername(username)
-        .password(passwordEncoder.encode(password))
-        .roles("USER")
-        .build();
-    userDetailsManager.createUser(user);
+    PendingUser pu = new PendingUser();
+    pu.setUsername(username);
+    pu.setPassword(passwordEncoder.encode(password));
+    pu.setEmail(email);
+    pendingUserRepository.save(pu);
 
-    ra.addFlashAttribute("message", "登録が完了しました。ログインしてください。");
+    ra.addFlashAttribute("message", "登録申請を受け付けました。管理者の承認をお待ちください。");
     return "redirect:/auth/registuser";
   }
 }

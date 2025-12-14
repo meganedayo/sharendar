@@ -21,10 +21,11 @@
       text-align: center;
     }
 
-        /* ロゴ（虹色グラデーション） */
+    /* ロゴ（虹色グラデーション） */
     .title {
       font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      font-size: 10rem; /* 好みで調整 */
+      font-size: 10rem;
+      /* 好みで調整 */
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 0.5rem;
@@ -38,10 +39,18 @@
       animation: rainbow 6s linear infinite;
     }
 
-        @keyframes rainbow {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    @keyframes rainbow {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
     }
 
     /* リンクの間隔調整（任意） */
@@ -69,6 +78,7 @@
     <a href="/calendar">カレンダー</a><br>
     <a href="/upload">画像アップロード</a><br>
     <a href="/sampleimage">サンプル画像</a><br>
+    <p><a href="/admin/pending">管理者: ユーザ登録申請一覧</a></p>
   </div>
 </body>
 

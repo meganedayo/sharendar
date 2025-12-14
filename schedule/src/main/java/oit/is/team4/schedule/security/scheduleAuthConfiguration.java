@@ -30,6 +30,7 @@ public class scheduleAuthConfiguration {
             .logoutUrl("/logout")
             .logoutSuccessUrl("/")) // ログアウト後に / にリダイレクト
         .authorizeHttpRequests(authz -> authz
+            .requestMatchers("/admin/**").hasRole("ADMIN")
             .requestMatchers("/calendar/**",
                 "/sampleimage/**")
             .authenticated()
