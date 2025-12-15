@@ -45,56 +45,66 @@
     }
 
     td.highlight {
-  position: relative;
-  z-index: 0;
-}
+      position: relative;
+      z-index: 0;
+    }
 
-/* 外側にグラデーション枠を描く */
-td.highlight::before {
-  content: "";
-  position: absolute;
-  inset: -4px;              /* 枠の太さ */
-  z-index: -1;
-  border-radius: 4px;
-  background: linear-gradient(135deg,
-      #ff5252,
-      #ffb347,
-      #42a5f5,
-      #ab47bc,
-      #ff5252);
-  background-size: 300% 300%;
-  animation: borderFlow 4s linear infinite;
-}
+    /* 外側にグラデーション枠を描く */
+    td.highlight::before {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      /* 枠の太さ */
+      z-index: -1;
+      border-radius: 4px;
+      background: linear-gradient(135deg,
+          #ff5252,
+          #ffb347,
+          #42a5f5,
+          #ab47bc,
+          #ff5252);
+      background-size: 300% 300%;
+      animation: borderFlow 4s linear infinite;
+    }
 
-/* 内側のセル背景を白に戻す (はみ出し防止) */
-td.highlight::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: #ffffff;
-  z-index: -1;
-}
+    /* 内側のセル背景を白に戻す (はみ出し防止) */
+    td.highlight::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      z-index: -1;
+    }
 
-/* 枠のグラデーションがゆっくり流れるアニメーション */
-@keyframes borderFlow {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+    /* 枠のグラデーションがゆっくり流れるアニメーション */
+    @keyframes borderFlow {
+      0% {
+        background-position: 0% 50%;
+      }
 
-/* 枠の光がゆっくり強弱するアニメーション */
-@keyframes highlightPulse {
-  from {
-    box-shadow:
-      inset 0 0 0 2px #ff6347,
-      0 0 4px rgba(255, 99, 71, 0.4);
-  }
-  to {
-    box-shadow:
-      inset 0 0 0 2px #ff6347,
-      0 0 16px rgba(255, 99, 71, 1);
-  }
-}
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    /* 枠の光がゆっくり強弱するアニメーション */
+    @keyframes highlightPulse {
+      from {
+        box-shadow:
+          inset 0 0 0 2px #ff6347,
+          0 0 4px rgba(255, 99, 71, 0.4);
+      }
+
+      to {
+        box-shadow:
+          inset 0 0 0 2px #ff6347,
+          0 0 16px rgba(255, 99, 71, 1);
+      }
+    }
 
 
     .day-link {
@@ -208,6 +218,47 @@ td.highlight::after {
       保存しました！
     </div>
   </div>
+
+  <!-- 現在ログイン中のユーザ表示 -->
+  <section id="active-users-section" style="margin-top:18px;">
+    <h3>現在ログイン中のユーザ</h3>
+    <ul id="active-users-list">
+      <li>読み込み中...</li>
+    </ul>
+  </section>
+
+  <script>
+    const fetchActiveUsers = () => {
+      fetch('/active-users', { credentials: 'same-origin' })
+        .then(res => {
+          if (!res.ok) throw new Error('failed to fetch active users');
+          return res.json();
+        })
+        .then(list => {
+          const ul = document.getElementById('active-users-list');
+          ul.innerHTML = '';
+          if (!Array.isArray(list) || list.length === 0) {
+            const li = document.createElement('li');
+            li.textContent = 'ログイン中のユーザはいません';
+            ul.appendChild(li);
+            return;
+          }
+          list.forEach(u => {
+            const li = document.createElement('li');
+            li.textContent = u;
+            ul.appendChild(li);
+          });
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    };
+
+    // 初回取得 + 5秒ごとに更新（必要に応じて間隔を変えてください）
+    fetchActiveUsers();
+    setInterval(fetchActiveUsers, 5000);
+  </script>
+
 
 </body>
 
