@@ -17,8 +17,6 @@ public class PendingUser {
   @Column(nullable = false)
   private String password; // エンコード済みで保存
 
-  private String email;
-
   @Column(nullable = false)
   private LocalDateTime createdAt;
 
@@ -49,14 +47,6 @@ public class PendingUser {
 
   public void setPassword(String password) {
     this.password = password;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
   }
 
   public LocalDateTime getCreatedAt() {
