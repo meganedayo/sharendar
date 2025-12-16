@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>サンプル画像</title>
+  <title th:text="${filename} + ' の画像'">サンプル画像</title>
   <style>
     img {
       max-width: 90%;
@@ -23,16 +23,17 @@
 </head>
 
 <body>
-  <h1>サンプル画像</h1>
+  <h1 th:text="${filename} + ' のリアクションとコメント'">サンプル画像</h1>
 
   <!-- static 配下に置いた画像を表示 -->
   <div>
-    <img th:src="@{/image/sample.png}" alt="sample image" />
+    <img th:src="@{/uploads/{name}(name=${filename})}" alt="image" />
   </div>
 
   <div style="margin-top:12px; display:flex; gap:12px; align-items:center;">
     <!-- ハート -->
     <form th:action="@{/sampleimage/react}" method="post" style="display:inline;">
+      <input type="hidden" name="filename" th:value="${filename}" />
       <input type="hidden" name="type" value="heart" />
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
       <button type="submit" style="font-size:1.2em; background:none; border:none; cursor:pointer;">
@@ -43,6 +44,7 @@
 
     <!-- いいね -->
     <form th:action="@{/sampleimage/react}" method="post" style="display:inline;">
+      <input type="hidden" name="filename" th:value="${filename}" />
       <input type="hidden" name="type" value="like" />
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
       <button type="submit" style="font-size:1.2em; background:none; border:none; cursor:pointer;">
@@ -53,6 +55,7 @@
 
     <!-- 笑い -->
     <form th:action="@{/sampleimage/react}" method="post" style="display:inline;">
+      <input type="hidden" name="filename" th:value="${filename}" />
       <input type="hidden" name="type" value="laugh" />
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
       <button type="submit" style="font-size:1.2em; background:none; border:none; cursor:pointer;">
@@ -67,6 +70,7 @@
   <!-- コメント投稿フォーム -->
   <div style="margin-top:16px;">
     <form th:action="@{/sampleimage/comment}" method="post">
+      <input type="hidden" name="filename" th:value="${filename}" />
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
       <div>
         <label>コメント:<br />
@@ -91,7 +95,7 @@
     </div>
   </div>
 
-  <p><a th:href="@{/}">トップへ戻る</a></p>
+  <p><a th:href="@{/calendar}">カレンダーに戻る</a></p>
 </body>
 
 </html>

@@ -61,10 +61,11 @@
 
       <div th:each="imgName : ${imagesByHour.get(h)}">
 
-        <a th:href="@{/uploads/{name}(name=${imgName})}" target="_blank" th:text="${imgName}">ファイル名</a>
+        <a th:href="@{/sampleimage(filename=${imgName})}" th:text="${imgName}">ファイル名</a>
         <br />
 
-        <a th:href="@{/uploads/{name}(name=${imgName})}" target="_blank">
+        <!-- サムネは表示自体は /uploads のまま。クリックしたら詳細へ -->
+        <a th:href="@{/sampleimage(filename=${imgName})}">
           <img th:src="@{/uploads/{name}(name=${imgName})}"
             style="max-width:150px; max-height:150px; margin-top:5px; border:1px solid #ddd;" />
         </a>
