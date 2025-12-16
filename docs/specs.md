@@ -14,10 +14,17 @@ Sharendar はスケジュール管理・共有と簡易画像リアクション�
   - サンプル画像のリアクション: [`oit.is.team4.schedule.controller.LikeController`](schedule/src/main/java/oit/is/team4/schedule/controller/LikeController.java)
   - コメント追加: [`oit.is.team4.schedule.controller.AddCommentController`](schedule/src/main/java/oit/is/team4/schedule/controller/AddCommentController.java)
   - ユーザ登録フォーム: [`oit.is.team4.schedule.controller.RegistController`](schedule/src/main/java/oit/is/team4/schedule/controller/RegistController.java)
+  - 管理者承認: [`oit.is.team4.schedule.controller.AdminPendingController`](schedule/src/main/java/oit/is/team4/schedule/controller/AdminPendingController.java)
   - その他: [`oit.is.team4.schedule.controller.Sample1Controller`](schedule/src/main/java/oit/is/team4/schedule/controller/Sample1Controller.java)
 
 - セキュリティ設定
   - [`oit.is.team4.schedule.security.scheduleAuthConfiguration`](schedule/src/main/java/oit/is/team4/schedule/security/scheduleAuthConfiguration.java)
+
+- エンティティ / リポジトリ
+  - PendingUser: [`schedule/src/main/java/oit/is/team4/schedule/model/PendingUser.java`](schedule/src/main/java/oit/is/team4/schedule/model/PendingUser.java)
+  - PendingUserRepository: [`schedule/src/main/java/oit/is/team4/schedule/repository/PendingUserRepository.java`](schedule/src/main/java/oit/is/team4/schedule/repository/PendingUserRepository.java)
+  - Comment / CommentRepository: [`schedule/src/main/java/oit/is/team4/schedule/model/Comment.java`](schedule/src/main/java/oit/is/team4/schedule/model/Comment.java), [`schedule/src/main/java/oit/is/team4/schedule/repository/CommentRepository.java`](schedule/src/main/java/oit/is/team4/schedule/repository/CommentRepository.java)
+  - ImageLike: [`schedule/src/main/java/oit/is/team4/schedule/model/ImageLike.java`](schedule/src/main/java/oit/is/team4/schedule/model/ImageLike.java)
 
 - テンプレート / 静的ファイル
   - サンプル画像画面: [schedule/src/main/resources/templates/sampleimage.html](schedule/src/main/resources/templates/sampleimage.html)
@@ -54,6 +61,16 @@ Sharendar はスケジュール管理・共有と簡易画像リアクション�
     - 実装: [`RegistController`](schedule/src/main/java/oit/is/team4/schedule/controller/RegistController.java)
   - セキュリティ: in-memory ユーザ定義あり（例: `やに`, `まっちょ`）
     - 実装: [`scheduleAuthConfiguration.userDetailsService`](schedule/src/main/java/oit/is/team4/schedule/security/scheduleAuthConfiguration.java)
+  - GET /admin/pending
+    - 表示: 管理者用の申請一覧（ROLE_ADMIN 必須）
+    - 実装: [`AdminPendingController.listPending`](schedule/src/main/java/oit/is/team4/schedule/controller/AdminPendingController.java)
+  - POST /admin/pending/approve/{id}
+    - 動作: 指定申請を承認して実ユーザを作成
+    - 備考: PendingUser.password（ハッシュ済）をそのまま UserDetails に渡して InMemoryUserDetailsManager.createUser を実行、その後申請を削除
+    - 実装: [`AdminPendingController.approve`](schedule/src/main/java/oit/is/team4/schedule/controller/AdminPendingController.java)
+  - POST /admin/pending/reject/{id}
+    - 動作: 指定申請を却下（削除）
+    - 実装: [`AdminPendingController.reject`](schedule/src/main/java/oit/is/team4/schedule/controller/AdminPendingController.java)
 
 ## データモデル（想定）
 - Member
@@ -82,11 +99,11 @@ Sharendar はスケジュール管理・共有と簡易画像リアクション�
 - 実装完了時: `docs/reports/done/done_YYYY-MM-DD_実装内容.md` を作成
 
 ## 参照ファイル一覧（主要）
-- [schedule/src/main/java/oit/is/team4/schedule/controller/CalendarController.java](schedule/src/main/java/oit/is/team4/schedule/controller/CalendarController.java)
-- [schedule/src/main/java/oit/is/team4/schedule/controller/LikeController.java](schedule/src/main/java/oit/is/team4/schedule/controller/LikeController.java)
-- [schedule/src/main/java/oit/is/team4/schedule/controller/AddCommentController.java](schedule/src/main/java/oit/is/team4/schedule/controller/AddCommentController.java)
-- [schedule/src/main/java/oit/is/team4/schedule/controller/RegistController.java](schedule/src/main/java/oit/is/team4/schedule/controller/RegistController.java)
-- [schedule/src/main/java/oit/is/team4/schedule/security/scheduleAuthConfiguration.java](schedule/src/main/java/oit/is/team4/schedule/security/scheduleAuthConfiguration.java)
-- [schedule/src/main/resources/templates/sampleimage.html](schedule/src/main/resources/templates/sampleimage.html)
-- [schedule/src/main/resources/templates/registuser.html](schedule/src/main/resources/templates/registuser.html)
-- [schedule/src/main/resources/data.sql](schedule/src/main/resources/data.sql)
+- schedule/src/main/java/oit/is/team4/schedule/controller/RegistController.java
+- schedule/src/main/java/oit/is/team4/schedule/controller/AdminPendingController.java
+- schedule/src/main/java/oit/is/team4/schedule/security/scheduleAuthConfiguration.java
+- schedule/src/main/java/oit/is/team4/schedule/model/PendingUser.java
+- schedule/src/main/java/oit/is/team4/schedule/repository/PendingUserRepository.java
+- schedule/src/main/resources/templates/admin/pending.html
+- schedule/src/main/resources/templates/registuser.html
+- schedule/src/main/resources/application.properties
