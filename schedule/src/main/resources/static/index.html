@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Schedule Samples</title>
+  <title>SHARENDAR</title>
   <style>
     /* 下に下げたい部分用のクラス */
     .lower {
@@ -21,11 +21,9 @@
       text-align: center;
     }
 
-    /* ロゴ（虹色グラデーション） */
+    /* ロゴ（虹色グラデーション）共通スタイル */
     .title {
       font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      font-size: 10rem;
-      /* 好みで調整 */
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 0.5rem;
@@ -37,6 +35,12 @@
       color: transparent;
       display: block;
       animation: rainbow 6s linear infinite;
+    }
+
+    /* ロゴ用サイズ調整（新クラス） */
+    .brand {
+      font-size: 10rem;
+      /* SHARENDAR の大きさをここで調整 */
     }
 
     @keyframes rainbow {
@@ -53,14 +57,16 @@
       }
     }
 
-    /* リンクの間隔調整（任意） */
+    /* center 内リンクの共通設定（表示/間隔のみ） */
     .center a {
       display: block;
       margin: 6px 0;
-      font-size: 7rem;
-      /* ← ここで文字を大きくする（必要に応じて調整） */
       font-weight: 500;
-      /* 太さを調整したい場合に追加（任意） */
+    }
+
+    /* 他リンク用のサイズ（必要なら調整） */
+    .center .other-link {
+      font-size: 4rem;
     }
   </style>
 </head>
@@ -68,9 +74,9 @@
 <body>
   <div class="center">
 
-    <span class="title">SHARENDAR</span>
-    <a href="/calendar">Sign In</INp></a><br>
-    <a href="/registuser">Sign Up</a><br>
+    <span class="title brand">SHARENDAR</span>
+    <a href="/calendar" class="other-link">Sign In</a><br>
+    <a href="/registuser" class="other-link">Sign Up</a><br>
   </div>
 
 
