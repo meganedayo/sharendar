@@ -35,7 +35,6 @@ public class RegistController {
   @PostMapping({ "/registuser", "/auth/registuser" })
   public String register(@RequestParam String username,
       @RequestParam String password,
-      @RequestParam(required = false) String email,
       RedirectAttributes ra,
       Model model) {
 
@@ -47,7 +46,6 @@ public class RegistController {
     PendingUser pu = new PendingUser();
     pu.setUsername(username);
     pu.setPassword(passwordEncoder.encode(password));
-    pu.setEmail(email);
     pendingUserRepository.save(pu);
 
     ra.addFlashAttribute("message", "登録申請を受け付けました。管理者の承認をお待ちください。");

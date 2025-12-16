@@ -11,12 +11,11 @@
   <div th:if="${param.error}" style="color:red;" th:text="${param.error}"></div>
   <div th:if="${param.message}" style="color:green;" th:text="${param.message}"></div>
 
-  <table border="1" cellpadding="6">
+  <table border="1" cellpadding="5">
     <thead>
       <tr>
         <th>ID</th>
         <th>ユーザ名</th>
-        <th>メール</th>
         <th>申請日時</th>
         <th>操作</th>
       </tr>
@@ -25,7 +24,6 @@
       <tr th:each="p : ${pendings}">
         <td th:text="${p.id}">1</td>
         <td th:text="${p.username}">user</td>
-        <td th:text="${p.email}">email</td>
         <td th:text="${#temporals.format(p.createdAt,'yyyy-MM-dd HH:mm')}">日時</td>
         <td>
           <form th:action="@{/admin/pending/approve/{id}(id=${p.id})}" method="post" style="display:inline;">
