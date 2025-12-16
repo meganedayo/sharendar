@@ -25,11 +25,17 @@ public class AddCommentController {
   }
 
   @GetMapping("/sampleimage")
-  public String showSampleImage(Model model, Principal principal) {
-    List<Comment> comments = commentRepository.findByFilenameOrderByCreatedAtDesc("sample.png");
+  public String showSampleImage(@RequestParam(required = false) String filename,
+      Model model,
+      Principal principal) {
+
+    if (filename == null || filename.isBlank()) {
+      filename = "sample.png";
+    }
+    List<Comment> comments = commentRepository.findByFilenameOrderByCreatedAtDesc(filename);
     model.addAttribute("comments", comments);
-    model.addAttribute("filename", "sample.png");
-    ImageLike like = imageLikeRepository.findByFilename("sample.png").orElse(null);
+    model.addAttribute("filename", filename);
+    ImageLike like = imageLikeRepository.findByFilename(filename).orElse(null);
     int heartCount = (like == null) ? 0 : like.getHeartCount();
     int likeCount = (like == null) ? 0 : like.getLikeCount();
     int laughCount = (like == null) ? 0 : like.getLaughCount();
@@ -43,20 +49,26 @@ public class AddCommentController {
 
   @PostMapping("/sampleimage/comment")
   public String postComment(Principal principal,
+      @RequestParam String filename,
       @RequestParam String text,
       RedirectAttributes ra) { // { changed code } Principal から投稿者を取得
+
+    if (filename == null || filename.isBlank()) {
+      filename = "sample.png";
+    }
+
     if (text == null || text.isBlank()) {
       ra.addFlashAttribute("error", "コメントを入力してください。");
-      return "redirect:/sampleimage";
+      return "redirect:/sampleimage?filename=" + filename;
     }
 
     Comment c = new Comment();
-    c.setFilename("sample.png");
+    c.setFilename(filename);
     String author = (principal == null) ? "匿名" : principal.getName(); // { changed code }
     c.setAuthor(author);
     c.setText(text);
     commentRepository.save(c);
 
-    return "redirect:/sampleimage";
+    return "redirect:/sampleimage?filename=" + filename;
   }
 }
