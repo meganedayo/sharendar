@@ -12,16 +12,21 @@ import oit.is.team4.schedule.model.Comment;
 import oit.is.team4.schedule.repository.CommentRepository;
 import oit.is.team4.schedule.repository.ImageLikeRepository;
 import oit.is.team4.schedule.model.ImageLike;
+import oit.is.team4.schedule.repository.ImageReactionLogRepository;
 
 @Controller
 public class AddCommentController {
 
   private final CommentRepository commentRepository;
   private final ImageLikeRepository imageLikeRepository;
+  private final ImageReactionLogRepository imageReactionLogRepository;
 
-  public AddCommentController(CommentRepository commentRepository, ImageLikeRepository imageLikeRepository) {
+  public AddCommentController(CommentRepository commentRepository,
+      ImageLikeRepository imageLikeRepository,
+      ImageReactionLogRepository imageReactionLogRepository) {
     this.commentRepository = commentRepository;
     this.imageLikeRepository = imageLikeRepository;
+    this.imageReactionLogRepository = imageReactionLogRepository;
   }
 
   @GetMapping("/sampleimage")
@@ -43,7 +48,15 @@ public class AddCommentController {
     model.addAttribute("heartCount", heartCount);
     model.addAttribute("likeCount", likeCount);
     model.addAttribute("laughCount", laughCount);
-    model.addAttribute("username", principal == null ? "匿名" : principal.getName());
+    String username = (principal == null) ? "匿名" : principal.getName();
+    model.addAttribute("username", username);
+
+    // このユーザがこの画像に対してリアクション済みかどうかを調べる
+    // (existsBy... メソッドは前回のステップでRepositoryに追加したものを使います)
+    boolean hasReacted = imageReactionLogRepository.existsByUserNameAndFilename(username, filename);
+
+    // 画面にフラグを渡す
+    model.addAttribute("hasReacted", hasReacted);
     return "sampleimage";
   }
 

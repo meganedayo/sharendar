@@ -79,4 +79,14 @@ public class ImageLike {
       this.laughCount++;
     }
   }
+
+  public void decrement(String type) {
+    if ("heart".equals(type)) {
+      this.heartCount--;
+    } else if ("like".equals(type)) {
+      this.likeCount--;
+    } else if ("laugh".equals(type)) {
+      this.laughCount--;
+    }
+  }
 }

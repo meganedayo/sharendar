@@ -30,15 +30,15 @@
     <img th:src="@{/uploads/{name}(name=${filename})}" alt="image" />
   </div>
 
+  <!-- ハート -->
   <div style="margin-top:12px; display:flex; gap:12px; align-items:center;">
-    <!-- ハート -->
     <form th:action="@{/sampleimage/react}" method="post" style="display:inline;">
       <input type="hidden" name="filename" th:value="${filename}" />
       <input type="hidden" name="type" value="heart" />
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
       <button type="submit" style="font-size:1.2em; background:none; border:none; cursor:pointer;">
         <span style="color:#e25555;">&#10084;</span>
-        <span th:text="${heartCount}">0</span>
+        <span th:if="${hasReacted}" th:text="${heartCount}">0</span>
       </button>
     </form>
 
@@ -49,7 +49,7 @@
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
       <button type="submit" style="font-size:1.2em; background:none; border:none; cursor:pointer;">
         <span style="color:#0077cc;">&#128077;</span>
-        <span th:text="${likeCount}">0</span>
+        <span th:if="${hasReacted}" th:text="${likeCount}">0</span>
       </button>
     </form>
 
@@ -60,7 +60,7 @@
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
       <button type="submit" style="font-size:1.2em; background:none; border:none; cursor:pointer;">
         <span style="color:#f1c40f;">&#128518;</span>
-        <span th:text="${laughCount}">0</span>
+        <span th:if="${hasReacted}" th:text="${laughCount}">0</span>
       </button>
     </form>
   </div>
