@@ -2,37 +2,69 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>新規登録ページ</title>
 </head>
 
 <body>
   <h1>新規登録</h1>
-  <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
-  <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+  <div th:if="${message}" style="color:green;" th:text="${message}"></div>
+  <div th:if="${error}" style="color:red;" th:text="${error}"></div>
 
-  <form th:action="@{/auth/registuser}" method="post" class="row g-3">
-    <!-- CSRF -->
+  <form th:action="@{/auth/registuser}" method="post">
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
-    <div class="col-12">
-      <label for="username" class="form-label">ユーザ名</label>
-      <input type="text" id="username" name="username" class="form-control" required maxlength="50" />
+    <div>
+      <label for="username">ユーザ名</label>
+      <input type="text" id="username" name="username" required maxlength="50" />
     </div>
-
-    <div class="col-12">
-      <label for="password" class="form-label">パスワード</label>
-      <input type="password" id="password" name="password" class="form-control" required minlength="4" />
-      <div class="form-text">4文字以上のパスワードを設定してください。</div>
+    <div>
+      <label for="password">パスワード</label>
+      <input type="password" id="password" name="password" required minlength="4" />
+      <small>4文字以上のパスワードを設定してください。</small>
     </div>
-
-    <div class="col-12">
-      <button type="submit" class="btn btn-primary">登録</button>
-      <a th:href="@{/login}" class="btn btn-outline-secondary ms-2">ログイン画面へ</a>
-      <a th:href="@{/}" class="btn btn-link ms-2">トップへ</a>
+    <div>
+      <button type="submit">登録</button>
+      <a th:href="@{/login}">ログイン</a>
+      <a th:href="@{/}">トップへ</a>
     </div>
   </form>
 
-</body>
+  <div id="async-status" th:if="${checkingUsername}" style="margin-top:1rem; color:#006; font-weight:600;">
+    申請中...（管理者の承認をお待ちください）
+  </div>
 
-</html>
+  <script th:if="${checkingUsername}" th:inline="javascript">
+    /*<![CDATA[*/
+    const checkingUsername = /*[[${checkingUsername}]]*/ '';
+    const statusEl = document.getElementById('async-status');
+
+    const check = () => {
+      fetch('/registuser/status?username=' + encodeURIComponent(checkingUsername), { credentials: 'same-origin' })
+        .then(res => {
+          if (!res.ok) throw new Error('status check failed');
+          return res.json();
+        })
+        .then(obj => {
+          if (obj.status === 'pending') {
+            statusEl.textContent = '申請中...（管理者の承認をお待ちください）';
+            statusEl.style.color = '#006';
+          } else if (obj.status === 'approved') {
+            statusEl.textContent = '承認されました。ログインできます。';
+            statusEl.style.color = 'green';
+            clearInterval(intervalId);
+          } else {
+            statusEl.textContent = '申請が見つかりません（却下された可能性があります）。';
+            statusEl.style.color = 'red';
+            clearInterval(intervalId);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    };
+
+    check();
+    const intervalId = setInterval(check, 3000);
+    /*]]>*/
+  </script>
+</body>
