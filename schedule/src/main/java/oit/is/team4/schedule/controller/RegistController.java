@@ -11,6 +11,10 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import oit.is.team4.schedule.model.PendingUser;
 import oit.is.team4.schedule.repository.PendingUserRepository;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class RegistController {
@@ -28,7 +32,10 @@ public class RegistController {
   }
 
   @GetMapping({ "/registuser", "/auth/registuser" })
-  public String showForm() {
+  public String showForm(@RequestParam(required = false) String username, Model model) {
+    if (username != null && !username.isBlank()) {
+      model.addAttribute("checkingUsername", username);
+    }
     return "registuser";
   }
 
@@ -49,6 +56,19 @@ public class RegistController {
     pendingUserRepository.save(pu);
 
     ra.addFlashAttribute("message", "登録申請を受け付けました。管理者の承認をお待ちください。");
-    return "redirect:/auth/registuser";
+    String encoded = URLEncoder.encode(username, StandardCharsets.UTF_8);
+    return "redirect:/auth/registuser?username=" + encoded;
+  }
+
+  @GetMapping("/registuser/status")
+  @ResponseBody
+  public Map<String, String> checkStatus(@RequestParam String username) {
+    if (userDetailsManager.userExists(username)) {
+      return Map.of("status", "approved");
+    }
+    if (pendingUserRepository.findByUsername(username).isPresent()) {
+      return Map.of("status", "pending");
+    }
+    return Map.of("status", "rejected");
   }
 }
