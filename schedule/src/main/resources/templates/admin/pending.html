@@ -4,42 +4,150 @@
 <head>
   <meta charset="utf-8" />
   <title>申請一覧</title>
+  <style>
+    /* 画面全体で中央揃え（横・縦中央） */
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+      background: #f7f8fa;
+      color: #222;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      /* 垂直中央 */
+      justify-content: center;
+      /* 水平中央 */
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 1000px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(20, 20, 40, 0.08);
+      padding: 24px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 16px 0;
+      font-size: 1.6rem;
+    }
+
+    .messages {
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .messages .error {
+      color: #b00;
+    }
+
+    .messages .message {
+      color: green;
+    }
+
+    table.pending {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px auto 0 auto;
+      /* 中央 */
+    }
+
+    table.pending th,
+    table.pending td {
+      border: 1px solid #ddd;
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: middle;
+      font-size: 0.95rem;
+    }
+
+    table.pending thead th {
+      background: #f5f7fa;
+      text-align: center;
+    }
+
+    td.actions {
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    form.inline {
+      display: inline-block;
+      margin: 0 4px;
+    }
+
+    button {
+      background: #0078d4;
+      color: #fff;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    button.reject {
+      background: #d9534f;
+    }
+
+    a.top-link {
+      display: inline-block;
+      margin-top: 14px;
+      color: #0078d4;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
 </head>
 
 <body>
-  <h1>ユーザ登録申請一覧</h1>
-  <div th:if="${param.error}" style="color:red;" th:text="${param.error}"></div>
-  <div th:if="${param.message}" style="color:green;" th:text="${param.message}"></div>
+  <div class="page">
+    <div class="card">
+      <h1>ユーザ登録申請一覧</h1>
+      <div th:if="${param.error}" class="error" th:text="${param.error}"></div>
+      <div th:if="${param.message}" class="message" th:text="${param.message}"></div>
 
-  <table border="1" cellpadding="5">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>ユーザ名</th>
-        <th>申請日時</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr th:each="p : ${pendings}">
-        <td th:text="${p.id}">1</td>
-        <td th:text="${p.username}">user</td>
-        <td th:text="${#temporals.format(p.createdAt,'yyyy-MM-dd HH:mm')}">日時</td>
-        <td>
-          <form th:action="@{/admin/pending/approve/{id}(id=${p.id})}" method="post" style="display:inline;">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <button type="submit">承認</button>
-          </form>
-          <form th:action="@{/admin/pending/reject/{id}(id=${p.id})}" method="post" style="display:inline;">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <button type="submit">却下</button>
-          </form>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+      <table class="pending" cellpadding="5">
+        <thead>
+          <tr>
+            <th style="width:8%;">ID</th>
+            <th style="width:40%;">ユーザ名</th>
+            <th style="width:30%;">申請日時</th>
+            <th style="width:22%;">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="p : ${pendings}">
+            <td th:text="${p.id}">1</td>
+            <td th:text="${p.username}">user</td>
+            <td th:text="${#temporals.format(p.createdAt,'yyyy-MM-dd HH:mm')}">日時</td>
+            <td>
+              <form th:action="@{/admin/pending/approve/{id}(id=${p.id})}" method="post" style="display:inline;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit">承認</button>
+              </form>
+              <form th:action="@{/admin/pending/reject/{id}(id=${p.id})}" method="post" style="display:inline;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit">却下</button>
+              </form>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(pendings)}">
+            <td colspan="4" style="text-align:center; padding:20px 0;">申請はありません。</td>
+        </tbody>
+      </table>
 
-  <p><a th:href="@{/}">トップへ</a></p>
+      <p><a th:href="@{/}" class="top-link">トップへ</a></p>
 </body>
 
 </html>

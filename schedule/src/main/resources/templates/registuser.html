@@ -4,67 +4,176 @@
 <head>
   <meta charset="utf-8" />
   <title>新規登録ページ</title>
+  <style>
+    /* 画面全体で中央揃え */
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+      background: #f7f8fa;
+      color: #222;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      /* 垂直中央 */
+      justify-content: center;
+      /* 水平中央 */
+      box-sizing: border-box;
+      padding: 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 720px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+      padding: 28px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      margin: 0 0 12px 0;
+      font-size: 1.6rem;
+    }
+
+    form>div {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 8px 10px;
+      box-sizing: border-box;
+      border: 1px solid #d0d7de;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    small {
+      color: #666;
+      display: block;
+      margin-top: 4px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    button[type="submit"] {
+      background: #0078d4;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    a {
+      color: #0078d4;
+      text-decoration: none;
+    }
+
+    .message {
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .message.success {
+      color: green;
+    }
+
+    .message.error {
+      color: #b00;
+    }
+
+    #async-status {
+      margin-top: 0.75rem;
+      color: #006;
+      font-weight: 600;
+    }
+  </style>
 </head>
 
 <body>
-  <h1>新規登録</h1>
-  <div th:if="${message}" style="color:green;" th:text="${message}"></div>
-  <div th:if="${error}" style="color:red;" th:text="${error}"></div>
+  <div class="page">
+    <div class="card">
+      <h1>新規登録</h1>
+      <div th:if="${message}" class="message success" th:text="${message}"></div>
+      <div th:if="${error}" class="message error" th:text="${error}"></div>
 
-  <form th:action="@{/auth/registuser}" method="post">
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-    <div>
-      <label for="username">ユーザ名</label>
-      <input type="text" id="username" name="username" required maxlength="50" />
-    </div>
-    <div>
-      <label for="password">パスワード</label>
-      <input type="password" id="password" name="password" required minlength="4" />
-      <small>4文字以上のパスワードを設定してください。</small>
-    </div>
-    <div>
-      <button type="submit">登録</button>
-      <a th:href="@{/login}">ログイン</a>
-      <a th:href="@{/}">トップへ</a>
-    </div>
-  </form>
 
-  <div id="async-status" th:if="${checkingUsername}" style="margin-top:1rem; color:#006; font-weight:600;">
-    申請中...（管理者の承認をお待ちください）
-  </div>
+      <form th:action="@{/auth/registuser}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <div>
+          <label for="username">ユーザ名</label>
+          <input type="text" id="username" name="username" required maxlength="50" />
+        </div>
+        <div>
+          <label for="password">パスワード</label>
+          <input type="password" id="password" name="password" required minlength="4" />
+          <small>4文字以上のパスワードを設定してください。</small>
+        </div>
+        <div class="actions">
+          <button type="submit">登録</button>
+          <a th:href="@{/login}">ログイン</a>
+          <a th:href="@{/}">トップへ</a>
+        </div>
+      </form>
 
-  <script th:if="${checkingUsername}" th:inline="javascript">
-    /*<![CDATA[*/
-    const checkingUsername = /*[[${checkingUsername}]]*/ '';
-    const statusEl = document.getElementById('async-status');
+      <div id="async-status" th:if="${checkingUsername}" style="margin-top:1rem; color:#006; font-weight:600;">
+        申請中...（管理者の承認をお待ちください）
+      </div>
 
-    const check = () => {
-      fetch('/registuser/status?username=' + encodeURIComponent(checkingUsername), { credentials: 'same-origin' })
-        .then(res => {
-          if (!res.ok) throw new Error('status check failed');
-          return res.json();
-        })
-        .then(obj => {
-          if (obj.status === 'pending') {
-            statusEl.textContent = '申請中...（管理者の承認をお待ちください）';
-            statusEl.style.color = '#006';
-          } else if (obj.status === 'approved') {
-            statusEl.textContent = '承認されました。ログインできます。';
-            statusEl.style.color = 'green';
-            clearInterval(intervalId);
-          } else {
-            statusEl.textContent = '申請が見つかりません（却下された可能性があります）。';
-            statusEl.style.color = 'red';
-            clearInterval(intervalId);
-          }
-        })
-        .catch(err => {
-          console.error(err);
-        });
-    };
+      <script th:if="${checkingUsername}" th:inline="javascript">
+        /*<![CDATA[*/
+        const checkingUsername = /*[[${checkingUsername}]]*/ '';
+        const statusEl = document.getElementById('async-status');
 
-    check();
-    const intervalId = setInterval(check, 3000);
-    /*]]>*/
-  </script>
+        const check = () => {
+          fetch('/registuser/status?username=' + encodeURIComponent(checkingUsername), { credentials: 'same-origin' })
+            .then(res => {
+              if (!res.ok) throw new Error('status check failed');
+              return res.json();
+            })
+            .then(obj => {
+              if (obj.status === 'pending') {
+                statusEl.textContent = '申請中...（管理者の承認をお待ちください）';
+                statusEl.style.color = '#006';
+              } else if (obj.status === 'approved') {
+                statusEl.textContent = '承認されました。ログインできます。';
+                statusEl.style.color = 'green';
+                clearInterval(intervalId);
+              } else {
+                statusEl.textContent = '申請が見つかりません（却下された可能性があります）。';
+                statusEl.style.color = 'red';
+                clearInterval(intervalId);
+              }
+            })
+            .catch(err => {
+              console.error(err);
+            });
+        };
+
+        check();
+        const intervalId = setInterval(check, 3000);
+        /*]]>*/
+      </script>
 </body>
