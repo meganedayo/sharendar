@@ -35,4 +35,20 @@ public interface ImageMapper {
       @Result(column = "scheduled_time", property = "scheduledTime") // ★ここが最重要
   })
   List<ImageRecord> selectImagesByDate(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+  @Select({
+      "<script>",
+      "SELECT image_name, scheduled_time",
+      "FROM image",
+      "WHERE image_name IN",
+      "<foreach item='n' collection='names' open='(' separator=',' close=')'>",
+      "#{n}",
+      "</foreach>",
+      "</script>"
+  })
+  @Results({
+      @Result(column = "image_name", property = "imageName"),
+      @Result(column = "scheduled_time", property = "scheduledTime")
+  })
+  List<ImageRecord> selectImagesByNames(@Param("names") List<String> names);
 }
