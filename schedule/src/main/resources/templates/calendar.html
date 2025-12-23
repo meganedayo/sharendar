@@ -142,6 +142,14 @@
       padding: 20px;
       border-top: 2px solid #ddd;
     }
+
+    td.today {
+      background-color: #D3D3D3;
+    }
+
+    td.highlight.today::after {
+      background: #98FB98;
+    }
   </style>
 </head>
 
@@ -174,7 +182,10 @@
       <tbody>
         <tr th:each="week : ${calendarMatrix}">
           <td th:each="day : ${week}"
-            th:classappend="${day != null and highlightDays != null and highlightDays.contains(day)} ? ' highlight' : ''">
+            th:classappend="
+              (${day != null and highlightDays != null and highlightDays.contains(day)} ? ' highlight' : '') +
+              (${day != null and todayDay != null and day == todayDay} ? ' today' : '')
+              ">
             <div th:if="${day != null}">
               <a class="day-link" th:href="@{/schedule/day(date=${targetYear} + '-' + ${targetMonth} + '-' + ${day})}">
                 [[${day}]]
