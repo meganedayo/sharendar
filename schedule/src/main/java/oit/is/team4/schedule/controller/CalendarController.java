@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.time.ZoneId;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -61,6 +62,13 @@ public class CalendarController {
         .map(LocalDate::getDayOfMonth)
         .collect(Collectors.toSet());
     model.addAttribute("highlightDays", highlightDays);
+
+    LocalDate today = LocalDate.now(ZoneId.of("Asia/Tokyo"));
+    YearMonth targetYm = YearMonth.from(targetDate);
+    YearMonth todayYm = YearMonth.from(today);
+
+    Integer todayDay = targetYm.equals(todayYm) ? today.getDayOfMonth() : null;
+    model.addAttribute("todayDay", todayDay);
 
     return "calendar.html";
   }
