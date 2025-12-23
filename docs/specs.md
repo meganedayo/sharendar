@@ -1,130 +1,176 @@
-# Sharendar - 仕様書 (Spec)
+# Sharendar 仕様書（spec.md）
 
-## 概要
-Sharendar はスケジュール管理・共有と簡易画像リアクション・コメント機能を備えた Spring Boot アプリケーション。主な機能はカレンダー表示・1日予定管理、画像へのいいね/リアクション・コメント、ユーザ登録/認証。
+## 1. 概要
+Sharendar は, Spring Boot を用いたスケジュール管理・共有アプリケーションである. 月間カレンダー表示, 日別予定管理, 画像アップロード, 画像へのリアクション・コメント, ユーザ登録・認証（管理者承認フロー含む）を提供する.
 
-## 実行方法
-- ビルド / 実行: プロジェクトルートで `gradle bootRun`
-- 設定: `schedule/src/main/resources/application.properties` を参照（デフォルト: H2 in-memory, ポート 80）
-  - ファイル: [schedule/src/main/resources/application.properties](schedule/src/main/resources/application.properties)
+本仕様書は, 現在の実装と追加仕様（虹色ハイライト）を統合して, 開発・レビュー・テストの基準（DoD）として利用する.
 
-## 主要パッケージとファイル
-- コントローラ
-  - カレンダー: [`oit.is.team4.schedule.controller.CalendarController`](schedule/src/main/java/oit/is/team4/schedule/controller/CalendarController.java)
-  - サンプル画像のリアクション: [`oit.is.team4.schedule.controller.LikeController`](schedule/src/main/java/oit/is/team4/schedule/controller/LikeController.java)
-  - コメント追加: [`oit.is.team4.schedule.controller.AddCommentController`](schedule/src/main/java/oit/is/team4/schedule/controller/AddCommentController.java)
-  - ユーザ登録フォーム: [`oit.is.team4.schedule.controller.RegistController`](schedule/src/main/java/oit/is/team4/schedule/controller/RegistController.java)
-  - 管理者承認: [`oit.is.team4.schedule.controller.AdminPendingController`](schedule/src/main/java/oit/is/team4/schedule/controller/AdminPendingController.java)
-  - その他: [`oit.is.team4.schedule.controller.Sample1Controller`](schedule/src/main/java/oit/is/team4/schedule/controller/Sample1Controller.java)
+---
 
-- セキュリティ設定
-  - [`oit.is.team4.schedule.security.scheduleAuthConfiguration`](schedule/src/main/java/oit/is/team4/schedule/security/scheduleAuthConfiguration.java)
+## 2. 実行方法
+### 2.1 ビルド・起動
+- プロジェクトルートで実行する.
+- 起動コマンド.
+  - `gradle bootRun`
 
-- エンティティ / リポジトリ
-  - PendingUser: [`schedule/src/main/java/oit/is/team4/schedule/model/PendingUser.java`](schedule/src/main/java/oit/is/team4/schedule/model/PendingUser.java)
-  - PendingUserRepository: [`schedule/src/main/java/oit/is/team4/schedule/repository/PendingUserRepository.java`](schedule/src/main/java/oit/is/team4/schedule/repository/PendingUserRepository.java)
-  - Comment / CommentRepository: [`schedule/src/main/java/oit/is/team4/schedule/model/Comment.java`](schedule/src/main/java/oit/is/team4/schedule/model/Comment.java), [`schedule/src/main/java/oit/is/team4/schedule/repository/CommentRepository.java`](schedule/src/main/java/oit/is/team4/schedule/repository/CommentRepository.java)
-  - ImageLike: [`schedule/src/main/java/oit/is/team4/schedule/model/ImageLike.java`](schedule/src/main/java/oit/is/team4/schedule/model/ImageLike.java)
+### 2.2 設定
+- 設定ファイル.
+  - `schedule/src/main/resources/application.properties`
+- DB はデフォルトで H2（in-memory）を想定する. ポートや DB 設定は `application.properties` に従う.
 
-- テンプレート / 静的ファイル
-  - サンプル画像画面: [schedule/src/main/resources/templates/sampleimage.html](schedule/src/main/resources/templates/sampleimage.html)
-  - 登録画面: [schedule/src/main/resources/templates/registuser.html](schedule/src/main/resources/templates/registuser.html)
-  - カレンダー / 日別予定: [schedule/src/main/resources/templates/sample1.html](schedule/src/main/resources/templates/sample1.html), [schedule/src/main/resources/templates/schedule_day.html](schedule/src/main/resources/templates/schedule_day.html)
-  - 静的 index: [schedule/src/main/resources/static/index.html](schedule/src/main/resources/static/index.html)
+---
 
-- 初期データ
-  - `data.sql` に会員データの INSERT がある
-    - ファイル: [schedule/src/main/resources/data.sql](schedule/src/main/resources/data.sql)
+## 3. 主要ディレクトリ構成
+- `schedule/src/main/java/oit/is/team4/schedule/`
+  - `controller/` 画面遷移・入力受付（HTTP）
+  - `service/` 判定ロジック（集計, ハイライト判定など）
+  - `repository/` JPA Repository（リアクションログ, コメント, 承認待ちユーザなど）
+  - `mapper/` MyBatis Mapper（予定, 画像レコードなど）
+  - `model/` Entity / DTO
+  - `security/` セキュリティ設定, WebConfig
+- `schedule/src/main/resources/templates/` Thymeleaf テンプレート
+- `schedule/src/main/resources/static/` 静的ファイル
+- `schedule/src/main/resources/schema.sql` スキーマ
+- `schedule/src/main/resources/data.sql` 初期データ
 
-## 主な機能仕様 (エンドポイント)
-- GET /calendar
-  - 表示: 月間カレンダー（パラメータ: year, month - 任意）
-  - 実装: [`CalendarController.showCalendar`](schedule/src/main/java/oit/is/team4/schedule/controller/CalendarController.java)
+---
 
-- 日別予定表示/追加
-  - GET /schedule/day (テンプレートで日付を表示) — 実装箇所を参照
-  - POST /addplan
-    - フォームにより year/month/day, start_time, end_time, title 等を受け取り保存
+## 4. 画面・機能一覧
+### 4.1 月間カレンダー
+- 月間カレンダーを表示し, 各日付から日別ページへ遷移できる.
+- 必要に応じて, 虹色ハイライト対象の日付セルを強調表示する.
 
-- 画像リアクション / コメント
-  - POST /sampleimage/react
-    - パラメータ: type (例: "laugh" 等)
-    - 実装: [`LikeController.reactSampleImage`](schedule/src/main/java/oit/is/team4/schedule/controller/LikeController.java)
-    - モデル: `ImageLike`（`new ImageLike(filename, 0, 0, 0)` で初期化される）
-  - POST /sampleimage/comment
-    - パラメータ: author (任意), text (必須)
-    - 実装: [`AddCommentController.postComment`](schedule/src/main/java/oit/is/team4/schedule/controller/AddCommentController.java)
-    - モデル: `Comment`（filename, author, text, createdAt 等）
+### 4.2 日別ページ（1日の予定）
+- 指定日の予定を時間帯ごとに表示する.
+- 指定日（または指定日時）に紐づくアップロード画像を表示する.
+- 画像リンクを押下すると, 画像リアクション・コメントページへ遷移できる.
 
-- ユーザ登録 / 認証
-  - GET /registuser, POST /auth/registuser
-    - 実装: [`RegistController`](schedule/src/main/java/oit/is/team4/schedule/controller/RegistController.java)
-  - セキュリティ: in-memory ユーザ定義あり（例: `やに`, `まっちょ`）
-    - 実装: [`scheduleAuthConfiguration.userDetailsService`](schedule/src/main/java/oit/is/team4/schedule/security/scheduleAuthConfiguration.java)
-  - GET /admin/pending
-    - 表示: 管理者用の申請一覧（ROLE_ADMIN 必須）
-    - 実装: [`AdminPendingController.listPending`](schedule/src/main/java/oit/is/team4/schedule/controller/AdminPendingController.java)
-  - POST /admin/pending/approve/{id}
-    - 動作: 指定申請を承認して実ユーザを作成
-    - 備考: PendingUser.password（ハッシュ済）をそのまま UserDetails に渡して InMemoryUserDetailsManager.createUser を実行、その後申請を削除
-    - 実装: [`AdminPendingController.approve`](schedule/src/main/java/oit/is/team4/schedule/controller/AdminPendingController.java)
-  - POST /admin/pending/reject/{id}
-    - 動作: 指定申請を却下（削除）
-    - 実装: [`AdminPendingController.reject`](schedule/src/main/java/oit/is/team4/schedule/controller/AdminPendingController.java)
+### 4.3 画像リアクション・コメント
+- 画像単位で, リアクション（例: heart, like, laugh）を登録できる.
+- 画像単位で, コメントの投稿と一覧表示ができる.
+- リアクションは集計値表示（ImageLike 等）と, 操作ログ（ImageReactionLog）を保持する.
 
-## 画像アップロードとリアクション（追加仕様）
+### 4.4 ユーザ登録・認証（管理者承認）
+- 一般ユーザは登録申請を行い, 管理者が承認すると利用可能となる.
+- 管理者は pending 一覧から承認・却下を行える.
 
-### 画像アップロード（概要）
-- 概要: ユーザは予定作成画面または専用画面から画像をアップロードできる。
-- 保存先:
-  - アプリ起点の uploads/ ディレクトリにファイルを保存（例: project-root/uploads/）
-  - 静的配信設定: `WebConfig.addResourceHandlers` で `/uploads/**` を `file:uploads/` にマップすること
-    - 実装ファイル例: `schedule/src/main/java/oit/is/team4/schedule/security/WebConfig.java`
-- DB 保存（image テーブル、または ImageRecord エンティティ）
-  - 必須カラム/フィールド:
-    - id (自動採番)
-    - image_name (保存ファイル名、例: UUID_元ファイル名)
-    - original_name (元ファイル名)
-    - uploader (ユーザ名)
-    - scheduled_time (画像が紐づく日時、nullable)
-    - uploaded_at (タイムスタンプ)
-  - 実装箇所: `schedule/src/main/java/oit/is/team4/schedule/mapper/ImageMapper.java` または対応する Repository
+---
 
-### 画像リアクション（概要）
-- ユーザは各画像に対してリアクション（like, laugh, sad 等）を行える。
-- リアクションの保存先:
-  - `image_reaction_log` テーブル（エンティティ: ImageReactionLog）
-  - カラム例: id, image_id, user_name, reaction_type, created_at
-  - リポジトリ: `schedule/src/main/java/oit/is/team4/schedule/repository/ImageReactionLogRepository.java`
-- 集計表示:
-  - ImageLike 等のモデルで集計値（heartCount, laughCount 等）を保持・表示するか、動的クエリで集計して表示する。
+## 5. エンドポイント仕様（主要）
+### 5.1 カレンダー
+#### GET `/calendar`
+- 概要: 月間カレンダー表示.
+- パラメータ（任意）.
+  - `year`（例: 2025）
+  - `month`（例: 12）
+- レスポンス: `calendar.html`
 
-### 日付枠の虹色表示ルール（新機能）
-- 目的: 同一画像に対して「24時間以内」に2ユーザ以上のリアクションがあった場合、その画像が紐づく日付セル（カレンダー、日別表示のヘッダ・時間枠）を虹色（.rainbow-day）でハイライトする。
-- 判定ロジック:
-  1. ある画像(image_id)について、現在時刻から過去24時間以内に記録された distinct user_name の数を集計する。
-  2. distinct user count >= 2 なら、その画像の scheduled_time に対応する日付を虹色ハイライト対象とする。
-- 実装案:
-  - 表示時に動的に判定する方法（DB で集計クエリを発行）
-    - メリット: 常に最新の状態を表示
-    - デメリット: 表示負荷が高い可能性あり（多数の画像・高トラフィック時）
-  - リアクション登録時に集計カラムを更新する方法（イベントでフラグ更新）
-    - メリット: 表示負荷を軽減
-    - デメリット: 一貫性・同期の手間（同時更新対策が必要）
-  - 負荷対策:
-    - Redis 等で短期キャッシュする
-    - バッチジョブで集計し結果をキャッシュする
+### 5.2 日別ページ
+#### GET `/schedule/day`
+- 概要: 指定日の予定・画像を表示.
+- パラメータ（必須）.
+  - `date`（例: `2025-12-01`）
+- レスポンス: `schedule_day.html`
 
-- 表示実装例:
-  - カレンダー画面:
-    - 日付セルに `.rainbow-day` クラスを付与し、CSS でグラデーションアニメを適用
-    - ホバーで当該日の画像サムネイル一覧をポップアップ表示
-  - 日別表示:
-    - 該当時刻ブロック内のサムネイルや日付ヘッダに虹色枠を適用
+#### POST `/addplan`
+- 概要: 予定追加.
+- 代表パラメータ（フォーム）.
+  - `year`, `month`, `day`
+  - `start_time`, `end_time`
+  - `title`
+- 動作: DB に保存し, 日別ページへリダイレクトする.
 
-- DB クエリ例（概念）
+### 5.3 画像リアクション
+#### POST `/sampleimage/react`
+- 概要: 指定画像へリアクションを登録する.
+- パラメータ.
+  - `filename`（必須, 画像ファイル名）
+  - `type`（必須, 例: `heart`, `like`, `laugh`）
+- 動作.
+  - 集計（ImageLike）を更新する.
+  - ログ（ImageReactionLog）を1件保存する.
+  - `/sampleimage?filename=...` にリダイレクトする.
+
+### 5.4 画像コメント
+#### GET `/sampleimage`
+- 概要: 指定画像のリアクション・コメント画面を表示する.
+- パラメータ（任意）.
+  - `filename`（未指定時は `sample.png` を表示する）
+- レスポンス: `sampleimage.html`
+
+#### POST `/sampleimage/comment`
+- 概要: 指定画像へコメントを投稿する.
+- パラメータ.
+  - `filename`（必須）
+  - `text`（必須）
+- 動作.
+  - Comment を保存する（author は Principal から取得する. 未ログイン等は匿名）.
+  - `/sampleimage?filename=...` にリダイレクトする.
+
+### 5.5 ユーザ登録・管理者承認
+#### GET `/registuser`
+- 概要: 登録フォーム表示.
+- レスポンス: `registuser.html`
+
+#### POST `/auth/registuser`
+- 概要: 登録申請を pending に保存する.
+
+#### GET `/admin/pending`
+- 概要: 管理者用, 申請一覧表示（ROLE_ADMIN 必須）.
+- レスポンス: `admin/pending.html`
+
+#### POST `/admin/pending/approve/{id}`
+- 概要: 申請承認. InMemoryUserDetailsManager に実ユーザを作成し, 申請を削除する.
+
+#### POST `/admin/pending/reject/{id}`
+- 概要: 申請却下. 申請を削除する.
+
+---
+
+## 6. 画像アップロード仕様
+### 6.1 保存先
+- ファイルはアプリ起点の `uploads/` に保存する（例: `project-root/uploads/`）.
+- 静的配信は `WebConfig.addResourceHandlers` により, `/uploads/**` を `file:uploads/` にマッピングする.
+
+### 6.2 DB 保存（ImageRecord / image テーブル）
+- 画像のメタデータは DB に保存する.
+- 想定フィールド.
+  - `id`（自動採番）
+  - `image_name`（保存ファイル名, 例: UUID_元ファイル名）
+  - `original_name`（元ファイル名）
+  - `uploader`（ユーザ名）
+  - `scheduled_time`（画像が紐づく日時, nullable）
+  - `uploaded_at`（タイムスタンプ）
+
+### 6.3 ファイル名の取り扱い
+- 日本語や特殊文字を含むファイル名は URL や OS 依存の問題を起こしやすい.
+- 保存時に UUID などへ置換し, DB には original_name も保持することを推奨する.
+
+---
+
+## 7. 虹色ハイライト仕様（新機能）
+### 7.1 目的
+同一画像に対して「過去24時間以内」に2ユーザ以上のリアクションがあった場合, その画像が紐づく日付セルを虹色（`.rainbow-day` 等）でハイライトする.
+
+### 7.2 判定ルール（必須）
+1. 画像（`image_id` または `filename`）単位で, 現在時刻から過去24時間以内の `ImageReactionLog` を対象とする.
+2. `distinct user_name` を数える.
+3. `distinct user count >= 2` の画像を「ハイライト対象画像」とする.
+4. 対象画像の `scheduled_time`（日時）から日付を求め, その日付セルをハイライト対象日とする.
+
+### 7.3 実装方針（選択肢）
+- 表示時に動的判定（DB 集計クエリ）
+  - 長所: 常に最新状態.
+  - 短所: 画像やログが多いと負荷.
+- リアクション登録時に集計更新（フラグ更新）
+  - 長所: 表示負荷を軽減.
+  - 短所: 同時更新や整合性の設計が必要.
+- 負荷対策案.
+  - 短期キャッシュ（Redis 等）
+  - バッチで集計し結果をキャッシュ
+
+### 7.4 参考クエリ（概念）
 ```sql
--- 過去24時間にリアクションしたユニークユーザ数を取得
 SELECT image_id, COUNT(DISTINCT user_name) AS uniq_users
 FROM image_reaction_log
 WHERE created_at >= DATEADD('HOUR', -24, CURRENT_TIMESTAMP)
@@ -132,57 +178,63 @@ GROUP BY image_id
 HAVING COUNT(DISTINCT user_name) >= 2;
 ```
 
-## 表示振る舞いの注意点
-- 画像ファイル名に日本語や特殊文字がある場合、URL エンコードを行うか保存時にファイル名を UUID 等に置換することを推奨する。
-- 静的配信で画像が見えることを先に確認する（ブラウザから `/uploads/{filename}` で直接アクセス）。
-- テンプレート側では Thymeleaf で安全に値を取り出す（例: `#maps.get(imagesByHour, h)`）こと。
+---
 
-## 参照ファイル
-- 画像保存: `schedule/src/main/java/oit/is/team4/schedule/mapper/ImageMapper.java`（DB 操作）
-- 静的配信: `schedule/src/main/java/oit/is/team4/schedule/security/WebConfig.java`
-- リアクション記録: `schedule/src/main/java/oit/is/team4/schedule/repository/ImageReactionLogRepository.java`
-- 画像モデル: `schedule/src/main/java/oit/is/team4/schedule/model/ImageRecord.java`（存在する場合）
-- 日別テンプレート: `schedule/src/main/resources/templates/schedule_day.html`
+## 8. 画面側実装ガイド
+### 8.1 カレンダー画面（例）
+- 日付セルに `.rainbow-day` を付与し, CSS でグラデーションアニメーションを適用する.
+- ホバー時にポップアップ等を出す場合は, 体裁崩れ防止のため擬似要素（`::before`）や `box-shadow` を利用する.
 
-## 開発運用ルール（リポジトリ既定）
-- 仕様書更新: 本ファイル `docs/specs.md` を更新
-- タスク計画: `docs/tasks.md` を参照・更新
-- 実装完了時: `docs/reports/done/done_YYYY-MM-DD_実装内容.md` を作成
+### 8.2 日別ページ（例）
+- 該当日のヘッダ, もしくは画像サムネイル枠に虹色枠を適用する.
 
-## 参照 / 追加メモ
-- 実装時は `docs/tasks.md` に詳細タスクを記載して段階的に進めること
-- 実装フェーズでは `docs/reports/done/` に完了報告を残すこと
+### 8.3 画像リアクション・コメント画面
+- フォーム送信時に対象画像を保持するため, `filename` を hidden で送る.
+  - `<input type="hidden" name="filename" th:value="${filename}">`
 
-## データモデル（想定）
-- Member
-  - カラム例: id, userName, email
-  - 初期データ: [schedule/src/main/resources/data.sql](schedule/src/main/resources/data.sql)
-- ImageLike
-  - フィールド: filename, heartCount, laughCount, ...（ソースを参照）
-  - 参照: [`LikeController`](schedule/src/main/java/oit/is/team4/schedule/controller/LikeController.java)
-- Comment
-  - フィールド: id, filename, author, text, createdAt
-  - 参照: [`AddCommentController`](schedule/src/main/java/oit/is/team4/schedule/controller/AddCommentController.java)
+---
 
-## ビルド / ランタイム要件
-- Java 21（toolchain 指定）: `schedule/build.gradle`
-  - ファイル: [schedule/build.gradle](schedule/build.gradle)
-- Spring Boot 3.x
-- H2 データベース（デフォルトはインメモリ）
+## 9. データモデル（要点）
+- `Comment`
+  - `id`, `filename`, `author`, `text`, `createdAt`
+- `ImageLike`（集計）
+  - `filename`, `heartCount`, `likeCount`, `laughCount` など
+- `ImageReactionLog`（ログ）
+  - `id`, `image_id` または `filename`, `user_name`, `reaction_type`, `created_at`
+- `PendingUser`
+  - 登録申請用. 承認後は実ユーザへ反映する.
 
-## テスト方針
-- 単体テスト: コントローラの主要処理（POST のバリデーション、リダイレクト）をスプリングの MockMvc 等でテスト
-- インテグレーション: H2 を使った起動テスト（例: `gradle test` に統合）
-- 新機能テスト追加案:
-  - 画像アップロードの保存確認テスト（ファイル存在 + DB レコード）
-  - リアクション登録から24時間以内のユニークユーザ数判定ロジックの単体テスト
+---
 
-## 参照ファイル一覧（主要）
-- schedule/src/main/java/oit/is/team4/schedule/controller/RegistController.java
-- schedule/src/main/java/oit/is/team4/schedule/controller/AdminPendingController.java
-- schedule/src/main/java/oit/is/team4/schedule/security/scheduleAuthConfiguration.java
-- schedule/src/main/java/oit/is/team4/schedule/model/PendingUser.java
-- schedule/src/main/java/oit/is/team4/schedule/repository/PendingUserRepository.java
-- schedule/src/main/resources/templates/admin/pending.html
-- schedule/src/main/resources/templates/registuser.html
-- schedule/src/main/resources/application.properties
+## 10. テスト方針（DoD）
+### 10.1 基本 DoD
+- `http://localhost/calendar` にアクセスできる.
+- 画像をアップロードできる.
+- 日別ページに画像リンクが表示される.
+- 日別ページの画像リンクを押すと, その画像のリアクションとコメントができるページに遷移できる.
+- リアクションを押すと集計値が更新され, ログが残る.
+- コメントを投稿すると一覧に表示される.
+
+### 10.2 新機能 DoD（虹色ハイライト）
+- 同一画像に対して, 過去24時間以内に2ユーザ以上がリアクションした場合, その画像の `scheduled_time` に対応する日付が虹色表示になる.
+
+### 10.3 テスト追加案
+- 画像アップロードの保存確認（ファイル存在 + DB レコード）.
+- 24時間・distinct user 判定ロジックの単体テスト（境界: 24時間ちょうど, 1人, 2人, 同一ユーザ連打）.
+
+---
+
+## 11. 開発運用ルール
+- 仕様書更新: `docs/specs.md`（本ファイルを置く場所はリポジトリ規約に従う）
+- タスク計画: `docs/tasks.md`
+- 完了報告: `docs/reports/done/done_YYYY-MM-DD_実装内容.md`
+
+---
+
+## 12. 参照（代表）
+- `schedule/src/main/resources/application.properties`
+- `schedule/src/main/resources/schema.sql`
+- `schedule/src/main/resources/data.sql`
+- `schedule/src/main/java/oit/is/team4/schedule/security/WebConfig.java`
+- `schedule/src/main/java/oit/is/team4/schedule/repository/ImageReactionLogRepository.java`
+- `schedule/src/main/java/oit/is/team4/schedule/mapper/ImageMapper.java`
