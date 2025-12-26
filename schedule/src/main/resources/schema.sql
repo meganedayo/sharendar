@@ -15,7 +15,8 @@ CREATE TABLE schedule (
 CREATE TABLE image(
   id IDENTITY PRIMARY KEY,
   image_name VARCHAR(255) NOT NULL,
-  scheduled_time DATETIME
+  scheduled_time DATETIME,
+  user_name VARCHAR(100)
 );
 
 CREATE TABLE reaction (

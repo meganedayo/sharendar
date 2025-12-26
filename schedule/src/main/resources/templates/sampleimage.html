@@ -95,6 +95,20 @@
     </div>
   </div>
 
+  <div th:if="${isOwner}"
+    style="margin-top: 40px; border-top: 1px solid #ccc; padding-top: 20px; background-color: #fff0f0; padding: 10px;">
+    <h3 style="margin-top: 0; color: #d9534f;">管理メニュー</h3>
+    <p>この画像を削除すると、関連するコメントやリアクションも全て消えます。</p>
+    <form th:action="@{/sampleimage/delete}" method="post" onsubmit="return confirm('本当にこの画像を削除しますか？\n（復元できません）');">
+      <input type="hidden" name="filename" th:value="${filename}" />
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+      <button type="submit"
+        style="background-color: #d9534f; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-weight: bold;">
+        この画像を削除する
+      </button>
+    </form>
+  </div>
+
   <p><a th:href="@{/calendar}">カレンダーに戻る</a></p>
 </body>
 

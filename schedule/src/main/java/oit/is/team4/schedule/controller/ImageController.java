@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,8 +35,8 @@ public class ImageController {
 
   @PostMapping("/upload")
   public String upload(@RequestParam("imageFile") MultipartFile file,
-      // 修正: HTMLのdatetime-local形式に合わせてフォーマットを指定
-      @RequestParam("scheduledTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime scheduledTime) {
+      @RequestParam("scheduledTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime scheduledTime,
+      Principal principal) { // 【修正】Principalを追加
 
     if (file.isEmpty()) {
       return "redirect:/upload?error";
@@ -51,7 +52,11 @@ public class ImageController {
 
       Files.copy(file.getInputStream(), path);
 
-      imageMapper.insertImage(fileName, scheduledTime);
+      // 【修正】ユーザー名を取得してMapperに渡す
+      String userName = (principal != null) ? principal.getName() : "匿名";
+
+      // ※ここでエラーが出る場合は、後述の Mapper の修正を行ってください
+      imageMapper.insertImage(fileName, scheduledTime, userName);
 
     } catch (IOException e) {
       e.printStackTrace();
