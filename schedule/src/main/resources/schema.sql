@@ -9,13 +9,15 @@ CREATE TABLE schedule (
     plan_date DATE NOT NULL,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
-    title VARCHAR(255) NOT NULL
+    title VARCHAR(255) NOT NULL,
+    user_name VARCHAR(100) -- 【追加】投稿者
 );
 
 CREATE TABLE image(
   id IDENTITY PRIMARY KEY,
   image_name VARCHAR(255) NOT NULL,
-  scheduled_time DATETIME
+  scheduled_time DATETIME,
+  user_name VARCHAR(100)
 );
 
 CREATE TABLE reaction (

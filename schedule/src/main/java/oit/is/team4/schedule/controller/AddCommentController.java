@@ -13,6 +13,12 @@ import oit.is.team4.schedule.repository.CommentRepository;
 import oit.is.team4.schedule.repository.ImageLikeRepository;
 import oit.is.team4.schedule.model.ImageLike;
 import oit.is.team4.schedule.repository.ImageReactionLogRepository;
+import oit.is.team4.schedule.model.ImageEntity;
+import oit.is.team4.schedule.repository.ImageRepository;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Controller
 public class AddCommentController {
@@ -20,13 +26,16 @@ public class AddCommentController {
   private final CommentRepository commentRepository;
   private final ImageLikeRepository imageLikeRepository;
   private final ImageReactionLogRepository imageReactionLogRepository;
+  private final ImageRepository imageRepository;
 
   public AddCommentController(CommentRepository commentRepository,
       ImageLikeRepository imageLikeRepository,
-      ImageReactionLogRepository imageReactionLogRepository) {
+      ImageReactionLogRepository imageReactionLogRepository,
+      ImageRepository imageRepository) { // 追加
     this.commentRepository = commentRepository;
     this.imageLikeRepository = imageLikeRepository;
     this.imageReactionLogRepository = imageReactionLogRepository;
+    this.imageRepository = imageRepository; // 追加
   }
 
   @GetMapping("/sampleimage")
@@ -57,6 +66,22 @@ public class AddCommentController {
 
     // 画面にフラグを渡す
     model.addAttribute("hasReacted", hasReacted);
+    ImageEntity img = imageRepository.findByImageName(filename);
+    boolean isOwner = false;
+
+    if (img != null && img.getUserName() != null) {
+      // 画像の投稿者と、現在のログインユーザが一致するか？
+      if (img.getUserName().equals(username)) {
+        isOwner = true;
+      }
+    } else {
+      // ※注意: DBにデータがない（昔アップロードした画像など）場合の扱い
+      // ここでは「データがなければ誰も削除できない」としていますが、
+      // 必要に応じて「adminなら削除可能」などの条件を追加してください。
+    }
+
+    model.addAttribute("isOwner", isOwner);
+
     return "sampleimage";
   }
 
@@ -83,5 +108,51 @@ public class AddCommentController {
     commentRepository.save(c);
 
     return "redirect:/sampleimage?filename=" + filename;
+  }
+
+  @PostMapping("/sampleimage/delete")
+  public String deleteImage(@RequestParam String filename, Principal principal, RedirectAttributes ra) {
+
+    if (filename == null || filename.isBlank()) {
+      return "redirect:/calendar";
+    }
+
+    // 【追加】削除実行前の所有権チェック（セキュリティ対策）
+    String currentUserName = (principal != null) ? principal.getName() : "匿名";
+    ImageEntity img = imageRepository.findByImageName(filename);
+
+    // 画像が存在しない、または所有者でない場合は削除させない
+    if (img == null || !img.getUserName().equals(currentUserName)) {
+      ra.addFlashAttribute("error", "削除権限がありません。");
+      return "redirect:/sampleimage?filename=" + filename;
+    }
+
+    // 1. データベース削除
+    commentRepository.deleteByFilename(filename);
+    imageLikeRepository.deleteByFilename(filename);
+    imageReactionLogRepository.deleteByFilename(filename);
+
+    // 【追加】Imageテーブルからも削除
+    imageRepository.delete(img);
+
+    // 2. ファイル削除
+    try {
+      // ImageControllerと同じ "uploads/" ディレクトリを指定
+      Path path = Paths.get("uploads/" + filename);
+
+      // ファイルが存在すれば削除する
+      if (Files.exists(path)) {
+        Files.delete(path);
+        System.out.println("ファイルを削除しました: " + path.toAbsolutePath());
+      } else {
+        System.out.println("ファイルが見つかりませんでした: " + path.toAbsolutePath());
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      // ファイル削除に失敗しても、DBからは消えているので処理は続行（あるいはエラーメッセージを出す）
+    }
+
+    ra.addFlashAttribute("message", "画像を削除しました。");
+    return "redirect:/calendar";
   }
 }

@@ -16,8 +16,9 @@ import oit.is.team4.schedule.model.ImageRecord;
 @Mapper
 public interface ImageMapper {
 
-  @Insert("INSERT INTO image (image_name, scheduled_time) VALUES (#{imageName}, #{scheduledTime})")
-  void insertImage(@Param("imageName") String imageName, @Param("scheduledTime") LocalDateTime scheduledTime);
+  // 【修正】引数に String userName を追加し、SQLのVALUESにも #{userName} を追加
+  @Insert("INSERT INTO image (image_name, scheduled_time, user_name) VALUES (#{imageName}, #{scheduledTime}, #{userName})")
+  void insertImage(String imageName, LocalDateTime scheduledTime, String userName);
 
   @Select("SELECT image_name FROM image")
   List<String> selectAllImageNames();

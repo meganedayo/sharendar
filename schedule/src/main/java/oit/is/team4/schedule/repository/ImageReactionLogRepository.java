@@ -3,6 +3,7 @@ package oit.is.team4.schedule.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -28,4 +29,7 @@ public interface ImageReactionLogRepository extends JpaRepository<ImageReactionL
       @Param("end") LocalDateTime end,
       @Param("minUsers") long minUsers
   );
+
+  @Transactional
+  void deleteByFilename(String filename);
 }

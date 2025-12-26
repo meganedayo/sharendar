@@ -75,10 +75,22 @@
 
     <!-- ★ 全予定(plans)を回して、startTime.hour==h のものだけ表示 -->
     <span th:each="p : ${plans}" th:if="${p.startTime.hour == h}" class="plan-box">
+
+      <span style="font-weight:bold; color:#ffeb3b; margin-right:5px;" th:text="'[' + ${p.userName} + ']'"></span>
+
       <span th:text="${p.title}"></span>
       （<span th:text="${p.startTime}"></span>
       〜
       <span th:text="${p.endTime}"></span>）
+
+      <form th:action="@{/schedule/delete}" method="post" style="display:inline-block; margin-left:5px;"
+        th:if="${p.userName == #authentication.name}" onsubmit="return confirm('削除しますか？');">
+        <input type="hidden" name="id" th:value="${p.id}" />
+        <input type="hidden" name="date" th:value="${date}" />
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button type="submit"
+          style="font-size:0.8em; cursor:pointer; background:#d9534f; color:white; border:none; border-radius:3px;">×</button>
+      </form>
     </span>
 
   </div>
