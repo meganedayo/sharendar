@@ -9,6 +9,7 @@ public class Schedule {
   private LocalTime startTime;
   private LocalTime endTime;
   private String title;
+  private String userName; // 【追加】
 
   public int getId() {
     return id;
@@ -48,5 +49,13 @@ public class Schedule {
 
   public void setTitle(String title) {
     this.title = title;
+  }
+
+  public String getUserName() {
+    return userName;
+  }
+
+  public void setUserName(String userName) {
+    this.userName = userName;
   }
 }

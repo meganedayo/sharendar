@@ -1,6 +1,5 @@
 package oit.is.team4.schedule.controller;
 
-import java.io.File;
 import java.security.Principal;
 import java.util.List;
 import org.springframework.stereotype.Controller;
