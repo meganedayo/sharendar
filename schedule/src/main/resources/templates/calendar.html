@@ -181,8 +181,7 @@
 
       <tbody>
         <tr th:each="week : ${calendarMatrix}">
-          <td th:each="day : ${week}"
-            th:classappend="
+          <td th:each="day : ${week}" th:classappend="
               (${day != null and highlightDays != null and highlightDays.contains(day)} ? ' highlight' : '') +
               (${day != null and todayDay != null and day == todayDay} ? ' today' : '')
               ">
@@ -204,6 +203,11 @@
   <!-- ★★★ 画像アップロードフォーム ★★★ -->
   <div class="upload-section">
     <h2>画像をアップロードのみ</h2>
+
+    <div th:if="${error}"
+      style="color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; padding: 10px; margin-bottom: 15px; border: 1px solid transparent; border-radius: 4px;">
+      <strong>エラー:</strong> <span th:text="${error}">エラーメッセージ</span>
+    </div>
 
     <form th:action="@{/upload}" th:method="post" enctype="multipart/form-data">
       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
