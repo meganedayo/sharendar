@@ -7,7 +7,10 @@
 
 <body>
   <h1>画像をアップロードのみ</h1>
-
+  <div th:if="${error}"
+    style="color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; padding: 10px; margin-bottom: 15px; border: 1px solid transparent; border-radius: 4px;">
+    <strong>エラー:</strong> <span th:text="${error}">エラーメッセージ</span>
+  </div>
   <form method="post" action="/upload" enctype="multipart/form-data">
     <div>
       <label>画像ファイル:</label>

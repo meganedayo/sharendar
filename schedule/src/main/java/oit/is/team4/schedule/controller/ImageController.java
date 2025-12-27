@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes; // 追加
 
 import oit.is.team4.schedule.mapper.ImageMapper;
 
@@ -29,17 +30,27 @@ public class ImageController {
   private ImageMapper imageMapper;
 
   @GetMapping("/upload")
-  public String showUploadForm() {
+  public String showUploadForm(Model model) { // 引数にModelがあるとエラーメッセージを受け取りやすいです
     return "upload";
   }
 
   @PostMapping("/upload")
   public String upload(@RequestParam("imageFile") MultipartFile file,
       @RequestParam("scheduledTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime scheduledTime,
-      Principal principal) { // 【修正】Principalを追加
+      Principal principal,
+      RedirectAttributes ra) { // 【追加】エラーメッセージ用
 
+    // 1. ファイル空チェック
     if (file.isEmpty()) {
-      return "redirect:/upload?error";
+      ra.addFlashAttribute("error", "ファイルを選択してください");
+      return "redirect:/upload";
+    }
+
+    // 2. 【追加】未来の日時チェック
+    // 入力された時間が、現在時刻よりも「後(After)」であればエラーにする
+    if (scheduledTime.isAfter(LocalDateTime.now())) {
+      ra.addFlashAttribute("error", "未来の日時は指定できません（現在までの日時を選択してください）");
+      return "redirect:/calendar";
     }
 
     try {
@@ -52,15 +63,13 @@ public class ImageController {
 
       Files.copy(file.getInputStream(), path);
 
-      // 【修正】ユーザー名を取得してMapperに渡す
       String userName = (principal != null) ? principal.getName() : "匿名";
-
-      // ※ここでエラーが出る場合は、後述の Mapper の修正を行ってください
       imageMapper.insertImage(fileName, scheduledTime, userName);
 
     } catch (IOException e) {
       e.printStackTrace();
-      return "redirect:/upload?error";
+      ra.addFlashAttribute("error", "アップロード中にエラーが発生しました");
+      return "redirect:/upload";
     }
 
     String dateParam = scheduledTime.toLocalDate().toString();
