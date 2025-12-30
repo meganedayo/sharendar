@@ -92,6 +92,19 @@
           th:text="${#temporals.format(c.createdAt,'yyyy-MM-dd HH:mm')}">日時</span>
       </div>
       <div th:text="${c.text}">コメント本文</div>
+
+      <!-- 削除ボタン: 投稿者本人 または 管理者のみ表示 -->
+      <div th:if="${c.author == #authentication.name or isAdmin}" style="margin-top:6px;">
+        <form th:action="@{/sampleimage/comment/delete}" method="post" style="display:inline;">
+          <input type="hidden" name="id" th:value="${c.id}" />
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <button type="submit"
+            style="background:#d9534f; color:white; border:none; padding:6px 10px; border-radius:3px;">
+            削除
+          </button>
+        </form>
+      </div>
+
     </div>
   </div>
 

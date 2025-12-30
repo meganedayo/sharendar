@@ -16,6 +16,10 @@ import oit.is.team4.schedule.repository.ImageReactionLogRepository;
 import oit.is.team4.schedule.model.ImageEntity;
 import oit.is.team4.schedule.repository.ImageRepository;
 
+import java.util.Optional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -81,6 +85,13 @@ public class AddCommentController {
     }
 
     model.addAttribute("isOwner", isOwner);
+
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    boolean isAdmin = false;
+    if (auth != null && auth.getAuthorities() != null) {
+      isAdmin = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    }
+    model.addAttribute("isAdmin", isAdmin);
 
     return "sampleimage";
   }
@@ -154,5 +165,35 @@ public class AddCommentController {
 
     ra.addFlashAttribute("message", "画像を削除しました。");
     return "redirect:/calendar";
+  }
+
+  @PostMapping("/sampleimage/comment/delete")
+  public String deleteComment(Authentication authentication, @RequestParam Long id, RedirectAttributes ra) { // {
+                                                                                                             // changed
+                                                                                                             // code }
+    Optional<Comment> opt = commentRepository.findById(id);
+    if (opt.isEmpty()) {
+      ra.addFlashAttribute("error", "コメントが見つかりません。");
+      return "redirect:/sampleimage"; // filename 不明時は一覧に戻す
+    }
+
+    Comment c = opt.get();
+    String currentUser = (authentication == null) ? "匿名" : authentication.getName();
+
+    boolean isAdmin = false;
+    if (authentication != null && authentication.getAuthorities() != null) {
+      isAdmin = authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")); // {
+                                                                                                               // changed
+                                                                                                               // code }
+    }
+
+    if (currentUser.equals(c.getAuthor()) || isAdmin) {
+      commentRepository.delete(c);
+      ra.addFlashAttribute("message", "コメントを削除しました。");
+    } else {
+      ra.addFlashAttribute("error", "コメントの削除権限がありません。");
+    }
+
+    return "redirect:/sampleimage?filename=" + c.getFilename();
   }
 }
