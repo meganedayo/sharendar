@@ -39,7 +39,8 @@ public class scheduleAuthConfiguration {
             .ignoringRequestMatchers("/h2-console/*", "/sample2*/**", "/addplan", "/calendar")) // sample2用にCSRF対策を無効化
         .headers(headers -> headers
             .frameOptions(frameOptions -> frameOptions
-                .sameOrigin()));
+                .sameOrigin()))
+        .exceptionHandling(ex -> ex.accessDeniedPage("/access-denied"));
     return http.build();
   }
 

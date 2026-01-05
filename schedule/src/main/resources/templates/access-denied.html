@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="utf-8" />
+  <title>アクセス権限エラー</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto;
+      background: #f7f8fa;
+      padding: 24px;
+    }
+
+    .card {
+      max-width: 700px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 16px;
+      color: #0078d4;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>アクセスできません</h1>
+    <p>このページにアクセスするには管理者権限が必要です。管理者ユーザでログインするか、トップページに戻ってください。</p>
+    <p><a th:href="@{/}" class="btn">トップへ戻る</a></p>
+  </div>
+</body>
+
+</html>
