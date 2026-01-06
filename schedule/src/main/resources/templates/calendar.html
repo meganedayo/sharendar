@@ -157,12 +157,17 @@
       /* 赤い部分の位置を指定 */
       right: 5px;
       /* 赤い部分の右方向の位置 */
-      width: 225px;
-      height: 150px;
+      min-width: 180px;
+      max-width: 360px;
+      width: auto;
+      /* 高さは内容に合わせて伸びる。画面をはみ出さないよう最大値を設定 */
+      max-height: 60vh;
       background-color: #ffeeee;
       padding: 10px;
       border-radius: 10px;
       box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      overflow-y: auto;
+      transition: width 0.25s ease, height 0.25s ease;
     }
 
     #active-users-section {
@@ -170,9 +175,15 @@
       text-align: left;
     }
 
+    #active-users-list {
+      margin: 0;
+      padding: 0;
+    }
+
     #active-users-list li {
       list-style: none;
       margin-top: 8px;
+      word-break: break-word;
     }
   </style>
 </head>
