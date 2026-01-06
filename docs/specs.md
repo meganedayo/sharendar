@@ -125,6 +125,53 @@ Sharendar は, Spring Boot を用いたスケジュール管理・共有アプ�
 #### POST `/admin/pending/reject/{id}`
 - 概要: 申請却下. 申請を削除する.
 
+### 5.6 削除機能（画像・コメント・予定）
+
+#### POST `/sampleimage/delete`
+- 概要: 指定画像の削除。画像の所有者のみ実行可能（所有者でない場合はエラー）。
+- パラメータ（フォーム）
+  - `filename`（必須） — 削除対象の保存ファイル名（DB の `image_name` または filename）
+  - CSRF トークン（フォーム内に hidden）
+- 動作
+  1. `filename` が空ならカレンダーへリダイレクト。
+  2. DB の Image レコードを取得し、リクエストユーザが uploader/owner か検証する。
+  3. 所有者であれば、関連する Comment、ImageLike、ImageReactionLog 等の関連データを削除し、Image レコードを削除する。
+  4. ファイルシステム上の `uploads/filename` を存在すれば削除する（削除失敗でも DB の状態は優先して処理する）。
+  5. フラッシュメッセージをセットして `/calendar` にリダイレクト。権限がない場合は `/sampleimage?filename=...` にエラーメッセージ付きでリダイレクト。
+- セキュリティ
+  - 所有者チェックを必須とする（管理者に特別扱いをする場合は別途明示）。
+- 実装参照
+  - [AddCommentController.java](schedule/src/main/java/oit/is/team4/schedule/controller/AddCommentController.java) の `/sampleimage/delete` 実装例
+  - テンプレート側は `sampleimage.html` に削除フォームがある（hidden に filename と CSRF を含める）。
+
+#### POST `/sampleimage/comment/delete`
+- 概要: コメント削除。コメントの投稿者本人、または管理者（ROLE_ADMIN）に削除権限がある。
+- パラメータ（フォーム）
+  - `id`（必須） — 削除するコメントの ID
+  - CSRF トークン
+- 動作
+  1. 指定 ID の Comment を検索。存在しなければ `/sampleimage` にエラーフラッシュを付けてリダイレクト。
+  2. ログインユーザ名と Comment.author を比較、またはユーザに ROLE_ADMIN が付与されているか判定。
+  3. 権限があればコメントを削除し、成功メッセージをフラッシュして `/sampleimage?filename=<コメントの filename>` にリダイレクト。権限がない場合はエラーメッセージで同画面へリダイレクト。
+- 実装参照
+  - [AddCommentController.java](schedule/src/main/java/oit/is/team4/schedule/controller/AddCommentController.java) の `/sampleimage/comment/delete` 実装例
+  - `sampleimage.html` では投稿者または管理者にのみ削除ボタンを表示する条件がある（テンプレート参照）。
+
+#### POST `/schedule/delete`
+- 概要: 予定（schedule レコード）削除。予定の所有者のみ実行可能。
+- パラメータ（フォーム）
+  - `id`（必須） — 削除対象の予定 ID
+  - `date`（戻り先の日付、フォームで送られる） — 削除後のリダイレクト先指定
+  - CSRF トークン
+- 動作
+  1. ID で予定を取得。存在しなければ日別ページへリダイレクト。
+  2. 現在のログインユーザと schedule.userName を比較して所有者チェックを行う。
+  3. 所有者であれば DB から削除し、フラッシュメッセージを付与して `/schedule/day?date=<date>` にリダイレクト。権限がない場合はエラーフラッシュで同ページへリダイレクト。
+- 実装参照
+  - [ScheduleController.java](schedule/src/main/java/oit/is/team4/schedule/controller/ScheduleController.java) の `/schedule/delete` 実装例
+  - テンプレート（`schedule_day.html`）では削除ボタンを予定の所有者のみ表示している。
+
+
 ---
 
 ## 6. 画像アップロード仕様
