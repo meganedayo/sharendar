@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId; // 【追加】タイムゾーン指定用
 import java.util.List;
 import java.util.UUID;
 
@@ -46,9 +47,9 @@ public class ImageController {
       return "redirect:/upload";
     }
 
-    // 2. 【追加】未来の日時チェック
-    // 入力された時間が、現在時刻よりも「後(After)」であればエラーにする
-    if (scheduledTime.isAfter(LocalDateTime.now())) {
+    // 2. 未来の日時チェック (日本時間を基準にする)
+    // 【修正】ZoneId.of("Asia/Tokyo") を指定して、サーバーの設定に関わらず日本時間を取得して比較
+    if (scheduledTime.isAfter(LocalDateTime.now(ZoneId.of("Asia/Tokyo")))) {
       ra.addFlashAttribute("error", "未来の日時は指定できません（現在までの日時を選択してください）");
       return "redirect:/calendar";
     }
