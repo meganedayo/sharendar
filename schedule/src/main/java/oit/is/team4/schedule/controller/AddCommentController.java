@@ -20,6 +20,9 @@ import java.util.Optional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -118,7 +121,8 @@ public class AddCommentController {
     c.setText(text);
     commentRepository.save(c);
 
-    return "redirect:/sampleimage?filename=" + filename;
+    String enc = URLEncoder.encode(filename, StandardCharsets.UTF_8);
+    return "redirect:/sampleimage?filename=" + enc;
   }
 
   @PostMapping("/sampleimage/delete")
@@ -194,6 +198,7 @@ public class AddCommentController {
       ra.addFlashAttribute("error", "コメントの削除権限がありません。");
     }
 
-    return "redirect:/sampleimage?filename=" + c.getFilename();
+    String encFilename = URLEncoder.encode(c.getFilename(), StandardCharsets.UTF_8);
+    return "redirect:/sampleimage?filename=" + encFilename;
   }
 }
