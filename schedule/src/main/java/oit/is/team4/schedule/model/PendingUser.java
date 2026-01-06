@@ -1,6 +1,8 @@
 package oit.is.team4.schedule.model;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -22,7 +24,7 @@ public class PendingUser {
 
   @PrePersist
   public void prePersist() {
-    this.createdAt = LocalDateTime.now();
+    this.createdAt = LocalDateTime.now(ZoneId.of("Asia/Tokyo"));
   }
 
   public Long getId() {
