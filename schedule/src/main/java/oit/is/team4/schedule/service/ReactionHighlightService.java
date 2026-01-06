@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.HashSet;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +32,7 @@ public class ReactionHighlightService {
    * 指定年月の中で、ハイライトすべき LocalDate の集合を返す。
    */
   public Set<LocalDate> getHighlightDatesForMonth(YearMonth yearMonth) {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Tokyo"));
     LocalDateTime windowStart = now.minusHours(24);
 
     // 2. 直近24時間で「同一画像に distinct user が2人以上」リアクションした画像名を取得
