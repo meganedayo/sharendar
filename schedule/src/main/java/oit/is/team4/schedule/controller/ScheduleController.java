@@ -1,16 +1,23 @@
 package oit.is.team4.schedule.controller;
 
+import java.security.Principal;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
+import java.util.HashMap; // 追加
+import java.util.List;
+import java.util.Map; // 追加
+import java.util.stream.Collectors; // 追加
+
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes; // 追加
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import oit.is.team4.schedule.mapper.ScheduleMapper;
 import oit.is.team4.schedule.model.Schedule;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.security.Principal;
 
 @Controller
 public class ScheduleController {
@@ -26,15 +33,27 @@ public class ScheduleController {
       @RequestParam("year") int year,
       @RequestParam("month") int month,
       @RequestParam("day") int day,
-      @RequestParam("start_time") String startTime,
-      @RequestParam("end_time") String endTime,
+      @RequestParam("start_time") String startTimeStr,
+      @RequestParam("end_time") String endTimeStr,
       @RequestParam("title") String title,
-      Principal principal) { // 【修正】Principalを追加
+      Principal principal,
+      RedirectAttributes ra) { // エラーメッセージ用に追加
+
+    // 時間の文字列をLocalTimeに変換
+    LocalTime start = LocalTime.parse(startTimeStr);
+    LocalTime end = LocalTime.parse(endTimeStr);
+
+    // 【追加】時間の前後チェック
+    // 終了時刻が、開始時刻より「後(After)」でなければエラー
+    if (!end.isAfter(start)) {
+      ra.addFlashAttribute("error", "終了時刻は開始時刻より後に設定してください。");
+      return "redirect:/schedule/day?date=" + year + "-" + month + "-" + day;
+    }
 
     Schedule s = new Schedule();
     s.setPlanDate(LocalDate.of(year, month, day));
-    s.setStartTime(LocalTime.parse(startTime));
-    s.setEndTime(LocalTime.parse(endTime));
+    s.setStartTime(start);
+    s.setEndTime(end);
     s.setTitle(title);
 
     String userName = (principal != null) ? principal.getName() : "匿名";
@@ -69,5 +88,43 @@ public class ScheduleController {
     }
 
     return "redirect:/schedule/day?date=" + date;
+  }
+
+  // 【重要】非同期更新用API
+  // 指定された日付の予定リストをJSONで返す
+  // 【修正】非同期更新用API
+  // フロントエンド側で処理しやすいようにMapにつめ直して返す
+  @GetMapping("/schedule/api/list")
+  @ResponseBody
+  public List<Map<String, Object>> getScheduleList(@RequestParam("date") String dateString) {
+    LocalDate date;
+    try {
+      date = LocalDate.parse(dateString);
+    } catch (DateTimeParseException e) {
+      String[] parts = dateString.split("-");
+      int y = Integer.parseInt(parts[0]);
+      int m = Integer.parseInt(parts[1]);
+      int d = Integer.parseInt(parts[2]);
+      date = LocalDate.of(y, m, d);
+    }
+
+    List<Schedule> schedules = scheduleMapper.selectByDate(date);
+
+    // ScheduleオブジェクトをJSON用のMapに変換
+    return schedules.stream().map(s -> {
+      Map<String, Object> map = new HashMap<>();
+      map.put("id", s.getId());
+      map.put("title", s.getTitle());
+      map.put("userName", s.getUserName());
+
+      // 時間を文字列として確定させる（JSでのパースミスを防ぐ）
+      map.put("startTime", s.getStartTime().toString()); // "10:00" など
+      map.put("endTime", s.getEndTime().toString());
+
+      // 何時の枠に表示すべきか(hour)をサーバー側で計算して送る
+      map.put("hour", s.getStartTime().getHour());
+
+      return map;
+    }).collect(Collectors.toList());
   }
 }
