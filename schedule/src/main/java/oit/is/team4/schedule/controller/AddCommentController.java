@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody; // 追加
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import oit.is.team4.schedule.model.Comment;
 import oit.is.team4.schedule.repository.CommentRepository;
@@ -76,15 +77,10 @@ public class AddCommentController {
     ImageEntity img = imageRepository.findByImageName(filename);
     boolean isOwner = false;
 
-    if (img != null && img.getUserName() != null) {
-      // 画像の投稿者と、現在のログインユーザが一致するか？
-      if (img.getUserName().equals(username)) {
+    if (img != null) {
+      if (img.getUserName() != null && img.getUserName().equals(username)) {
         isOwner = true;
       }
-    } else {
-      // ※注意: DBにデータがない（昔アップロードした画像など）場合の扱い
-      // ここでは「データがなければ誰も削除できない」としていますが、
-      // 必要に応じて「adminなら削除可能」などの条件を追加してください。
     }
 
     model.addAttribute("isOwner", isOwner);
@@ -97,6 +93,15 @@ public class AddCommentController {
     model.addAttribute("isAdmin", isAdmin);
 
     return "sampleimage";
+  }
+
+  // 【追加】画像が存在するかチェックするAPI
+  @GetMapping("/sampleimage/exists")
+  @ResponseBody // HTMLではなくデータを返す場合に必要
+  public boolean checkImageExists(@RequestParam String filename) {
+    ImageEntity img = imageRepository.findByImageName(filename);
+    // DBにデータがあれば true, なければ false を返す
+    return img != null;
   }
 
   @PostMapping("/sampleimage/comment")

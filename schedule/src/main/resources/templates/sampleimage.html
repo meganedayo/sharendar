@@ -20,6 +20,30 @@
       font-size: 0.9em;
     }
   </style>
+
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    const filename = /*[[${filename}]]*/ 'sample.png';
+
+    // ページ読み込み完了後に定期チェックを開始
+    window.addEventListener('load', function () {
+
+      // 1000ミリ秒（1秒）ごとにチェックして「すぐに」反応するようにする
+      setInterval(function () {
+        fetch('/sampleimage/exists?filename=' + encodeURIComponent(filename))
+          .then(response => response.json()) // true か false が返ってくる
+          .then(exists => {
+            if (!exists) {
+              // 画像が存在しない(=false)場合、アラートを出してカレンダーへ移動
+              alert('この画像は削除されました。カレンダーに戻ります。');
+              window.location.href = '/calendar';
+            }
+          })
+          .catch(error => console.error('Error checking image existence:', error));
+      }, 1000);
+    });
+    /*]]>*/
+  </script>
 </head>
 
 <body>
