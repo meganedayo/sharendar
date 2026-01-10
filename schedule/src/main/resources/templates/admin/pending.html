@@ -108,14 +108,18 @@
       font-weight: 600;
     }
   </style>
+<meta name="_csrf" th:content="${_csrf.token}" />
+<meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 
 <body>
   <div class="page">
     <div class="card">
       <h1>ユーザ登録申請一覧</h1>
-      <div th:if="${param.error}" class="error" th:text="${param.error}"></div>
-      <div th:if="${param.message}" class="message" th:text="${param.message}"></div>
+      <div id="messages">
+        <div th:if="${param.error}" class="error" th:text="${param.error}"></div>
+        <div th:if="${param.message}" class="message" th:text="${param.message}"></div>
+      </div>
 
       <table class="pending" cellpadding="5">
         <thead>
@@ -126,7 +130,8 @@
             <th style="width:22%;">操作</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="pending-tbody">
+          <!-- 初期はサーバ描画でも良いが JS が定期的に更新する -->
           <tr th:each="p : ${pendings}">
             <td th:text="${p.id}">1</td>
             <td th:text="${p.username}">user</td>
@@ -142,12 +147,82 @@
               </form>
             </td>
           </tr>
-          <tr th:if="${#lists.isEmpty(pendings)}">
-            <td colspan="4" style="text-align:center; padding:20px 0;">申請はありません。</td>
         </tbody>
       </table>
 
       <p><a th:href="@{/}" class="top-link">トップへ</a></p>
+    </div>
+  </div>
+
+  <script>
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    // pending 一覧を取得して tbody を書き換える
+    async function refreshPending() {
+      try {
+        const res = await fetch('/admin/pending/api', { credentials: 'same-origin' });
+        if (!res.ok) throw new Error('failed to fetch pending list');
+        const list = await res.json();
+        const tbody = document.getElementById('pending-tbody');
+        tbody.innerHTML = '';
+        if (!Array.isArray(list) || list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px 0;">申請はありません。</td></tr>';
+          return;
+        }
+        list.forEach(p => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${p.id}</td>
+            <td>${p.username}</td>
+            <td>${formatCreatedAt(p.createdAt)}</td>
+            <td>
+              <button data-id="${p.id}" class="approve">承認</button>
+              <button data-id="${p.id}" class="reject">却下</button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+        // イベント付与
+        document.querySelectorAll('.approve').forEach(btn => {
+          btn.onclick = async (e) => {
+            const id = e.target.getAttribute('data-id');
+            await postAction('/admin/pending/approve/' + id);
+            await refreshPending();
+          };
+        });
+        document.querySelectorAll('.reject').forEach(btn => {
+          btn.onclick = async (e) => {
+            const id = e.target.getAttribute('data-id');
+            await postAction('/admin/pending/reject/' + id);
+            await refreshPending();
+          };
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function formatCreatedAt(s) {
+      if (!s) return '';
+      // サーバから ISO 文字列が来る前提。簡易整形:
+      return s.replace('T', ' ').substring(0, 16);
+    }
+
+    async function postAction(url) {
+      const res = await fetch(url, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { [csrfHeader]: csrfToken }
+      });
+      if (!res.ok) {
+        console.error('action failed', res.status);
+      }
+    }
+
+    // 初回取得 + 5秒毎に更新
+    refreshPending();
+    setInterval(refreshPending, 5000);
+  </script>
 </body>
 
 </html>
