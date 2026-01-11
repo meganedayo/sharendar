@@ -27,3 +27,19 @@ CREATE TABLE member ( id IDENTITY, userName VARCHAR NOT NULL ) [42101-232]
 org.h2.jdbc.JdbcSQLSyntaxErrorException: テーブル "MEMBER" はすでに存在します
 Table "MEMBER" already exists; SQL statement:
 CREATE TABLE member ( id IDENTITY, userName VARCHAR NOT NULL ) [42101-232]
+2026-01-11 01:02:48.976161+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: テーブル "USERS" が見つかりません
+Table "USERS" not found; SQL statement:
+select username from users where username = ? [42102-232]
+2026-01-11 01:02:50.213389+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: テーブル "USERS" が見つかりません
+Table "USERS" not found; SQL statement:
+select username from users where username = ? [42102-232]
+2026-01-11 01:02:53.218886+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: テーブル "USERS" が見つかりません
+Table "USERS" not found; SQL statement:
+select username from users where username = ? [42102-232]
+2026-01-11 01:02:56.221091+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: テーブル "USERS" が見つかりません
+Table "USERS" not found; SQL statement:
+select username from users where username = ? [42102-232]

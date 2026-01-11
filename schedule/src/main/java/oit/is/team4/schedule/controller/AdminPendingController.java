@@ -11,6 +11,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import oit.is.team4.schedule.model.PendingUser;
 import oit.is.team4.schedule.repository.PendingUserRepository;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Controller
 @RequestMapping("/admin")
 public class AdminPendingController {
@@ -28,6 +31,19 @@ public class AdminPendingController {
     List<PendingUser> items = pendingRepo.findAll();
     model.addAttribute("pendings", items);
     return "admin/pending";
+  }
+
+  @GetMapping("/pending/api")
+  @ResponseBody
+  public List<Map<String, Object>> pendingApi() {
+    List<PendingUser> items = pendingRepo.findAll();
+    return items.stream().map(p -> {
+      Map<String, Object> m = new java.util.HashMap<>();
+      m.put("id", p.getId());
+      m.put("username", p.getUsername());
+      m.put("createdAt", p.getCreatedAt() == null ? "" : p.getCreatedAt().toString());
+      return m;
+    }).collect(Collectors.toList());
   }
 
   @PostMapping("/pending/approve/{id}")
